@@ -1,0 +1,103 @@
+<h2>Mana Essence Bridge</h2>
+
+<p><strong>A bridge between Botania mana and Mystical Agriculture essence.</strong></p>
+
+<p>Your Inferium farm runs around the clock while your mana pools sit half empty? Or the other way round &mdash; endoflames burning fuel into nothing while you're short on essence? This addon merges the two economies: an upgraded Mana Pool becomes a two-way exchange.</p>
+
+<p>No new blocks. The mod extends the Mana Pool you already have.</p>
+
+<h3>How it works</h3>
+
+<p>Craft an <strong>Inferium Mana Catalyst</strong> and right-click it onto a plain Mana Pool. The pool is now upgraded and can:</p>
+
+<table>
+  <thead>
+    <tr><th>Action</th><th>Result</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Right-click with essence</td><td>convert one</td></tr>
+    <tr><td>Shift + right-click with essence</td><td>convert the whole stack</td></tr>
+    <tr><td>Shift + right-click, empty hand</td><td>buy essence back with mana</td></tr>
+    <tr><td>Hopper or pipe into the pool</td><td>the same, automated</td></tr>
+  </tbody>
+</table>
+
+<h3>Five tiers</h3>
+
+<p>Each catalyst unlocks the next essence level and demands its own rung of Botania progression:</p>
+
+<table>
+  <thead>
+    <tr><th>Tier</th><th>Essence</th><th>Mana given</th><th>Mana to buy</th><th>Crafted at</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>Inferium</td><td>2,000</td><td>2,500</td><td>Crafting table</td></tr>
+    <tr><td>2</td><td>Prudentium</td><td>8,000</td><td>10,000</td><td>Petal Apothecary</td></tr>
+    <tr><td>3</td><td>Tertium</td><td>32,000</td><td>40,000</td><td>Runic Altar</td></tr>
+    <tr><td>4</td><td>Imperium</td><td>128,000</td><td>160,000</td><td>Elven Trade</td></tr>
+    <tr><td>5</td><td>Supremium</td><td>512,000</td><td>640,000</td><td>Terra Plate</td></tr>
+  </tbody>
+</table>
+
+<p>No skipping ahead: catalysts apply strictly in order, and the higher tiers are physically out of reach until you have smelted Terrasteel, opened the Alfheim portal and beaten the Gaia Guardian. Until a rung is cleared, its entry stays hidden in the Lexica Botania and its catalyst stays hidden in JEI.</p>
+
+<h3>On balance &mdash; why exactly x4</h3>
+
+<p>The exchange rate deliberately mirrors Mystical Agriculture's own ladder: 4 essences make 1 of the next tier, and the same in reverse. That isn't laziness, it's arithmetic &mdash; the Master Infusion Crystal has infinite durability, so climbing that ladder costs the player nothing. Any rate better than x4 becomes an infinite mana loop: buy cheap essence, craft it upward for free, sell it higher. At exactly x4 the loop pays nothing.</p>
+
+<p>Buying back costs 25% more than selling, so the pool doesn't become free storage.</p>
+
+<h3>Configuration</h3>
+
+<p>Everything lives in <code>config/manaessencebridge-common.toml</code> and takes effect without rebuilding:</p>
+
+<table>
+  <thead>
+    <tr><th>Option</th><th>Default</th><th>What it does</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>manaPerInferium</code></td><td>2000</td><td>mana per Inferium Essence; every tier above is worth 4x more</td></tr>
+    <tr><td><code>buyMarkupPercent</code></td><td>125</td><td>buy-back price as a percent of the sell price</td></tr>
+    <tr><td><code>maxTier</code></td><td>5</td><td>highest tier the mod will handle</td></tr>
+    <tr><td><code>buyHighestTier</code></td><td>true</td><td>empty-hand buying: the best tier you can afford, or always Inferium</td></tr>
+    <tr><td><code>automationEnabled</code></td><td>true</td><td>accept essence from hoppers and pipes</td></tr>
+    <tr><td><code>hideLockedInJei</code></td><td>true</td><td>hide catalysts for gates you haven't passed</td></tr>
+    <tr><td><code>showHud</code></td><td>true</td><td>on-screen readout when looking at a pool</td></tr>
+  </tbody>
+</table>
+
+<p>This is a common config: single player uses your file, on a server the server's file wins &mdash; so players can't tune their own exchange rate.</p>
+
+<p>The x4 step itself is deliberately not configurable, for the reason above.</p>
+
+<h3>Also included</h3>
+
+<ul>
+  <li><strong>Pools are tinted by tier</strong> &mdash; one glance tells you what's where</li>
+  <li><strong>On-screen readout</strong> &mdash; look at a pool to see its tier, rate and stored mana</li>
+  <li><strong>Upgrades survive relocation</strong> &mdash; break the pool, carry it, place it again: the tier is still there</li>
+  <li><strong>JEI tab</strong> showing every exchange rate</li>
+  <li><strong>Lexica Botania entries</strong>, filed alongside the rest of Botania</li>
+  <li><strong>Advancements</strong> &mdash; a chain of six, one per tier</li>
+  <li><strong>English and Russian</strong> &mdash; fully localized, chat messages included</li>
+</ul>
+
+<h3>Compatibility</h3>
+
+<p>This mod uses <strong>no Mixins</strong>. Everything goes through Botania's public API and ordinary Forge events &mdash; no third-party bytecode is touched, so it cannot add another Create-versus-Rubidium style conflict to your pack.</p>
+
+<p><strong>Available for Minecraft 1.16.5 and 1.20.1</strong>, both on Forge. Pick the file that matches your pack.</p>
+
+<p><strong>Requires:</strong> Botania and Mystical Agriculture<br>
+<strong>Optional:</strong> JEI</p>
+
+<h3>FAQ</h3>
+
+<p><strong>A creeper blew up my pool &mdash; where's my tier?</strong><br>
+Gone. Botania's Mana Pool carries a <code>survives_explosion</code> condition, so an exploded pool drops nothing at all, not even itself. Use a pickaxe.</p>
+
+<p><strong>Can I apply a tier 5 catalyst straight away?</strong><br>
+No. Strictly in order, starting from tier 1.</p>
+
+<p><strong>Does it work with Botania addons?</strong><br>
+Yes, as long as their pool implements <code>IManaPool</code> &mdash; the upgrade attaches to the interface, not to one specific block.</p>

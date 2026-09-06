@@ -1,0 +1,30 @@
+{
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:inferium_mana_catalyst"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.root.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.root.description"
+    },
+    "background": "minecraft:textures/gui/advancements/backgrounds/adventure.png",
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "has_catalyst": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "manaessencebridge:inferium_mana_catalyst"
+          }
+        ]
+      }
+    }
+  }
+}

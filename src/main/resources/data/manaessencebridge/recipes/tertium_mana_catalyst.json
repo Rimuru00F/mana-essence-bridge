@@ -1,0 +1,33 @@
+{
+  "type": "botania:runic_altar",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "output": {
+    "item": "manaessencebridge:tertium_mana_catalyst"
+  },
+  "mana": 100000,
+  "ingredients": [
+    {
+      "item": "manaessencebridge:prudentium_mana_catalyst"
+    },
+    {
+      "item": "mysticalagriculture:tertium_essence"
+    },
+    {
+      "item": "mysticalagriculture:tertium_essence"
+    },
+    {
+      "item": "mysticalagriculture:tertium_essence"
+    },
+    {
+      "item": "mysticalagriculture:tertium_essence"
+    },
+    {
+      "item": "botania:terrasteel_ingot"
+    }
+  ]
+}

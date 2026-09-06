@@ -1,0 +1,18 @@
+{
+  "name": "manaessencebridge.entry.supremium",
+  "category": "botania:alfhomancy",
+  "icon": "manaessencebridge:supremium_mana_catalyst",
+  "advancement": "botania:main/gaia_guardian_kill",
+  "sortnum": 104,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.supremium0"
+    },
+    {
+      "type": "botania:terrasteel",
+      "text": "manaessencebridge.page.supremium1",
+      "recipe": "manaessencebridge:supremium_mana_catalyst"
+    }
+  ]
+}

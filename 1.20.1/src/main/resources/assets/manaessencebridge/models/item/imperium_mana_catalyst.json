@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "manaessencebridge:item/imperium_mana_catalyst"
+  }
+}

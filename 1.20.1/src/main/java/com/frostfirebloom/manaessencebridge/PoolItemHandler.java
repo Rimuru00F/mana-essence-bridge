@@ -1,0 +1,123 @@
+package com.frostfirebloom.manaessencebridge;
+
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.items.IItemHandler;
+import vazkii.botania.api.mana.ManaPool;
+
+import javax.annotation.Nonnull;
+
+/**
+ * Автоматизация: прокачанный Mana Pool отдаёт наружу IItemHandler, поэтому
+ * в него можно закидывать эссенцию воронкой, трубой Create, логистикой
+ * Mekanism - чем угодно, что умеет вставлять предметы.
+ *
+ * Botania сама на пуле никакого предметного хендлера не объявляет
+ * (TilePool даже не переопределяет getCapability), так что конфликта нет.
+ *
+ * Наружу ничего не выдаётся: extractItem всегда пустой, иначе трубы
+ * начали бы вытягивать из пула то, чего в нём нет.
+ */
+public class PoolItemHandler implements IItemHandler {
+
+    private final BlockEntity tile;
+
+    public PoolItemHandler(BlockEntity tile) {
+        this.tile = tile;
+    }
+
+    @Override
+    public int getSlots() {
+        return 1;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack getStackInSlot(int slot) {
+        // Пул ничего не хранит - эссенция сразу становится маной.
+        return ItemStack.EMPTY;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
+        if (stack.isEmpty() || !BridgeConfig.automationEnabled()) {
+            return stack;
+        }
+
+        Level world = tile.getLevel();
+        if (world == null || world.isClientSide || !(tile instanceof ManaPool)) {
+            return stack;
+        }
+
+        EssenceTier tier = EssenceTier.fromItem(stack.getItem());
+        if (tier == null || !tier.isEnabled()) {
+            return stack;
+        }
+
+        InferiumCatalystCapability cap =
+                tile.getCapability(ModCapabilities.INFERIUM_CATALYST_CAPABILITY).orElse(null);
+        if (cap == null || !cap.supports(tier)) {
+            return stack;
+        }
+
+        int manaPer = tier.getManaPerEssence();
+        int space = availableSpace(tile);
+        int accepted = Math.min(stack.getCount(), space / manaPer);
+        if (accepted <= 0) {
+            return stack;
+        }
+
+        if (!simulate) {
+            ((ManaPool) tile).receiveMana(manaPer * accepted);
+            tile.setChanged();
+            BlockPos pos = tile.getBlockPos();
+            BlockState state = world.getBlockState(pos);
+            world.sendBlockUpdated(pos, state, state, 3);
+        }
+
+        if (accepted >= stack.getCount()) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack leftover = stack.copy();
+        leftover.shrink(accepted);
+        return leftover;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack extractItem(int slot, int amount, boolean simulate) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public int getSlotLimit(int slot) {
+        return 64;
+    }
+
+    @Override
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+        if (!BridgeConfig.automationEnabled()) {
+            return false;
+        }
+        EssenceTier tier = EssenceTier.fromItem(stack.getItem());
+        if (tier == null || !tier.isEnabled()) {
+            return false;
+        }
+        InferiumCatalystCapability cap =
+                tile.getCapability(ModCapabilities.INFERIUM_CATALYST_CAPABILITY).orElse(null);
+        return cap != null && cap.supports(tier);
+    }
+
+    /** В 1.20.1 у ManaPool появился getMaxMana - обходной путь через SparkAttachable больше не нужен. */
+    private static int availableSpace(BlockEntity te) {
+        if (te instanceof ManaPool) {
+            ManaPool pool = (ManaPool) te;
+            return Math.max(0, pool.getMaxMana() - pool.getCurrentMana());
+        }
+        return Integer.MAX_VALUE;
+    }
+}

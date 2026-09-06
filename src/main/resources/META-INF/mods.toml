@@ -1,0 +1,51 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="MIT"
+
+[[mods]]
+modId="manaessencebridge"
+version="${file.jarVersion}"
+displayName="Mana Essence Bridge"
+authors="Frostfire Bloom Team"
+description='''
+A bridge between Botania mana and Mystical Agriculture essence: an upgraded
+Mana Pool converts essence into mana and back, across all five essence tiers.
+No Mixins - the mod uses only Botania's public API and ordinary Forge events.
+
+Мост между маной Botania и эссенциями Mystical Agriculture: прокачанный
+Mana Pool конвертирует эссенцию в ману и обратно, по всем пяти тирам.
+Без миксинов - только публичный API Botania и обычные события Forge.
+'''
+
+[[dependencies.manaessencebridge]]
+    modId="forge"
+    mandatory=true
+    versionRange="[36.2.0,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.manaessencebridge]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.5,1.17)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.manaessencebridge]]
+    modId="botania"
+    mandatory=true
+    versionRange="[1.16,)"
+    ordering="AFTER"
+    side="BOTH"
+
+# Mystical Agriculture НЕ прописан как mandatory=true специально -
+# мод обращается к его предметам через ResourceLocation по строке,
+# а не через прямую compile-зависимость, поэтому формально может
+# загрузиться и без него (просто конвертация в эссенцию не будет
+# находить предмет и покажет игроку понятное сообщение об этом).
+[[dependencies.manaessencebridge]]
+    modId="mysticalagriculture"
+    mandatory=false
+    versionRange="[1.16,)"
+    ordering="AFTER"
+    side="BOTH"

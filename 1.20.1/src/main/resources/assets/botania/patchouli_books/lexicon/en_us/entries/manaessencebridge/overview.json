@@ -1,0 +1,17 @@
+{
+  "name": "manaessencebridge.entry.overview",
+  "category": "botania:mana",
+  "icon": "manaessencebridge:inferium_mana_catalyst",
+  "sortnum": 100,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.overview0"
+    },
+    {
+      "type": "crafting",
+      "text": "manaessencebridge.page.overview1",
+      "recipe": "manaessencebridge:inferium_mana_catalyst"
+    }
+  ]
+}

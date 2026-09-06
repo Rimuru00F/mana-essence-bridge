@@ -1,0 +1,97 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+
+version = '1.16.5.1'
+group = 'com.frostfirebloom.manaessencebridge'
+archivesBaseName = 'manaessencebridge'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+
+// Исходники в UTF-8 (русские комментарии и строки сообщений в чате).
+// Без этого javac на русской Windows читает их как Cp1251 и текст
+// в игре превращается в кракозябры.
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+
+minecraft {
+    // MCP-имена (getTileEntity / isRemote / sendStatusMessage и т.д.),
+    // под которые изначально написан исходник мода.
+    mappings channel: 'snapshot', version: '20210309-1.16.5'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                manaessencebridge {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                manaessencebridge {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    maven {
+        name = 'CurseMaven'
+        url = 'https://cursemaven.com'
+        content {
+            includeGroup 'curse.maven'
+        }
+    }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
+
+    // Botania 1.16.5-420.3 (CurseForge projectId 225643, fileId 4066054).
+    // Именно compileOnly: в готовый jar Botania не попадает, в игре он и так
+    // стоит отдельным модом в mods/.
+    compileOnly fg.deobf('curse.maven:botania-225643:4066054')
+
+    // JEI 1.16.5-7.7.1.153 (CurseForge projectId 238222, fileId 4060770).
+    // Тоже compileOnly: плагин грузится только если JEI реально стоит в сборке.
+    // Компилируемся против 7.7.1, а не 7.8.x, ради совместимости вниз -
+    // API вкладок в ветке 7.x не менялось.
+    compileOnly fg.deobf('curse.maven:jei-238222:4060770')
+}
+
+jar {
+    manifest {
+        attributes([
+            "Specification-Title"     : "manaessencebridge",
+            "Specification-Vendor"    : "Frostfire Bloom Team",
+            "Specification-Version"   : "1",
+            "Implementation-Title"    : project.name,
+            "Implementation-Version"  : "${version}",
+            "Implementation-Vendor"   : "Frostfire Bloom Team",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')

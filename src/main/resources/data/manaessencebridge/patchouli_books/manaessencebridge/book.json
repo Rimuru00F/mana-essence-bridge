@@ -1,0 +1,7 @@
+{
+  "name": "manaessencebridge.book.name",
+  "landing_text": "manaessencebridge.book.landing",
+  "extend": "botania:lexicon",
+  "i18n": true,
+  "dont_generate_book": true
+}

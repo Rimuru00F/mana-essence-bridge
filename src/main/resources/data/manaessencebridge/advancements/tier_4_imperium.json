@@ -1,0 +1,30 @@
+{
+  "parent": "manaessencebridge:tier_3_tertium",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:imperium_mana_catalyst"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.tier_4_imperium.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.tier_4_imperium.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_catalyst": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "manaessencebridge:imperium_mana_catalyst"
+          }
+        ]
+      }
+    }
+  }
+}

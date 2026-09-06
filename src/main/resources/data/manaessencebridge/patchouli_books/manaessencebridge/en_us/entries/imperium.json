@@ -1,0 +1,18 @@
+{
+  "name": "manaessencebridge.entry.imperium",
+  "category": "botania:alfhomancy",
+  "icon": "manaessencebridge:imperium_mana_catalyst",
+  "advancement": "botania:main/elf_portal_open",
+  "sortnum": 103,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.imperium0"
+    },
+    {
+      "type": "botania:elven_trade",
+      "text": "manaessencebridge.page.imperium1",
+      "recipes": "manaessencebridge:imperium_mana_catalyst"
+    }
+  ]
+}

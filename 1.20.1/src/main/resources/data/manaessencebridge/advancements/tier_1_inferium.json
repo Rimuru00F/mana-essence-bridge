@@ -1,0 +1,32 @@
+{
+  "parent": "manaessencebridge:root",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:inferium_mana_catalyst"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.tier_1_inferium.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.tier_1_inferium.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_catalyst": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "manaessencebridge:inferium_mana_catalyst"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

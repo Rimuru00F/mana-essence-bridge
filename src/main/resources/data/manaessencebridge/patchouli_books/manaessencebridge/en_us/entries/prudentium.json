@@ -1,0 +1,17 @@
+{
+  "name": "manaessencebridge.entry.prudentium",
+  "category": "botania:mana",
+  "icon": "manaessencebridge:prudentium_mana_catalyst",
+  "sortnum": 101,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.prudentium0"
+    },
+    {
+      "type": "botania:petal_apothecary",
+      "text": "manaessencebridge.page.prudentium1",
+      "recipe": "manaessencebridge:prudentium_mana_catalyst"
+    }
+  ]
+}

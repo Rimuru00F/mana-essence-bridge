@@ -1,0 +1,31 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run
+
+# Files from Forge MDK
+forge*changelog.txt
+
+# Чужие моды для локального теста - не часть проекта
+test-mods-1.20.1/
+
+# Отдельный мод, ему нужен свой репозиторий
+frostfiretrinkets/
