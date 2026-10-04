@@ -1,9 +1,9 @@
 {
   "name": "manaessencebridge.entry.imperium",
-  "category": "botania:alfhomancy",
+  "category": "manaessencebridge:bridge",
   "icon": "manaessencebridge:imperium_mana_catalyst",
   "advancement": "botania:main/elf_portal_open",
-  "sortnum": 103,
+  "sortnum": 3,
   "pages": [
     {
       "type": "text",

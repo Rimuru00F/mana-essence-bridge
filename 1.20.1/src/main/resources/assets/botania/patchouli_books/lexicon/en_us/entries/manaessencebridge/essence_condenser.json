@@ -1,0 +1,29 @@
+{
+  "name": "manaessencebridge.entry.essence_condenser",
+  "category": "botania:manaessencebridge",
+  "icon": "manaessencebridge:essence_condenser",
+  "sortnum": 8,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essence_condenser_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essence_condenser_p2"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essence_condenser_p3"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essence_condenser_p4"
+    },
+    {
+      "type": "crafting",
+      "text": "manaessencebridge.page.essence_condenser2",
+      "recipe": "manaessencebridge:essence_condenser"
+    }
+  ]
+}

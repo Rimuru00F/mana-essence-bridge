@@ -1,0 +1,61 @@
+{
+  "name": "manaessencebridge.entry.essence_farm",
+  "category": "botania:manaessencebridge",
+  "icon": "botania:hopperhock",
+  "sortnum": 19,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essence_farm_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essence_farm_p2"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "flag": "mod:mysticalagriculture",
+      "name": "manaessencebridge.multiblock.essence_farm",
+      "multiblock": {
+        "mapping": {
+          "C": "mysticalagriculture:inferium_crop[age=7]",
+          "M": "manaessencebridge:mysticarnation",
+          "0": "manaessencebridge:wardenia",
+          "R": "manaessencebridge:reaperbloom",
+          "H": "botania:hopperhock",
+          "P": "botania:mana_pool",
+          "F": "minecraft:farmland",
+          "G": "minecraft:grass_block"
+        },
+        "pattern": [
+          [
+            "CCCCC",
+            "CCCCC",
+            "CM0RC",
+            "CCCCC",
+            "CCCCC",
+            "__HP_"
+          ],
+          [
+            "FFFFF",
+            "FFFFF",
+            "FGGGF",
+            "FFFFF",
+            "FFFFF",
+            "__GG_"
+          ]
+        ]
+      },
+      "enable_visualize": true,
+      "text": "manaessencebridge.page.essence_farm_mb"
+    },
+    {
+      "type": "spotlight",
+      "item": "botania:hopperhock"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essence_farm_p3"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "manaessencebridge:item/mana_ledger"
+  }
+}

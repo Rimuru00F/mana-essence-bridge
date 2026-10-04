@@ -1,0 +1,20 @@
+{
+  "name": "manaessencebridge.entry.boltbloom",
+  "category": "botania:manaessencebridge",
+  "icon": "manaessencebridge:boltbloom",
+  "sortnum": 16,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.boltbloom0"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.boltbloom1"
+    },
+    {
+      "type": "botania:petal_apothecary",
+      "recipe": "manaessencebridge:boltbloom"
+    }
+  ]
+}

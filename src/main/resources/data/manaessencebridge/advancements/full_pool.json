@@ -1,0 +1,23 @@
+{
+  "parent": "manaessencebridge:tier_5_supremium",
+  "display": {
+    "icon": {
+      "item": "botania:mana_pool"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.full_pool.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.full_pool.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "reached": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

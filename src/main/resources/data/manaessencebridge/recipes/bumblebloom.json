@@ -1,0 +1,26 @@
+{
+  "type": "botania:petal_apothecary",
+  "output": {
+    "item": "manaessencebridge:bumblebloom"
+  },
+  "ingredients": [
+    {
+      "tag": "botania:petals/yellow"
+    },
+    {
+      "tag": "botania:petals/yellow"
+    },
+    {
+      "tag": "botania:petals/orange"
+    },
+    {
+      "tag": "botania:petals/black"
+    },
+    {
+      "item": "botania:rune_spring"
+    },
+    {
+      "item": "minecraft:honeycomb"
+    }
+  ]
+}

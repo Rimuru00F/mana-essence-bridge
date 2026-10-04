@@ -50,7 +50,7 @@ public class PoolItemHandler implements IItemHandler {
         }
 
         World world = tile.getWorld();
-        if (world == null || world.isRemote || !(tile instanceof IManaPool)) {
+        if (world == null || world.isRemote || tile.isRemoved() || !(tile instanceof IManaPool)) {
             return stack;
         }
 
@@ -78,6 +78,13 @@ public class PoolItemHandler implements IItemHandler {
             BlockPos pos = tile.getPos();
             BlockState state = world.getBlockState(pos);
             world.notifyBlockUpdate(pos, state, state, 3);
+
+            PoolThroughput.record(world, pos, cap, (long) manaPer * accepted, null, true);
+
+            // Скромный всплеск: воронка подаёт по несколько раз в секунду,
+            // и полноразмерный фейерверк превратился бы в мельтешение.
+            // Звук не трогаем вовсе - вот он бы точно раздражал.
+            PoolEffects.burst(world, pos, tier, Math.min(2 + accepted, 8), 0.25);
         }
 
         if (accepted >= stack.getCount()) {
@@ -101,7 +108,7 @@ public class PoolItemHandler implements IItemHandler {
 
     @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        if (!BridgeConfig.automationEnabled()) {
+        if (!BridgeConfig.automationEnabled() || tile.isRemoved()) {
             return false;
         }
         EssenceTier tier = EssenceTier.fromItem(stack.getItem());

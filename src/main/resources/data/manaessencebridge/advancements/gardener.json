@@ -1,0 +1,44 @@
+{
+  "parent": "manaessencebridge:auto_farm",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:bumblebloom"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.gardener.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.gardener.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "mysticarnation": {
+      "trigger": "minecraft:impossible"
+    },
+    "reaperbloom": {
+      "trigger": "minecraft:impossible"
+    },
+    "wardenia": {
+      "trigger": "minecraft:impossible"
+    },
+    "essentide": {
+      "trigger": "minecraft:impossible"
+    },
+    "brookbell": {
+      "trigger": "minecraft:impossible"
+    },
+    "boltbloom": {
+      "trigger": "minecraft:impossible"
+    },
+    "melodia": {
+      "trigger": "minecraft:impossible"
+    },
+    "bumblebloom": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

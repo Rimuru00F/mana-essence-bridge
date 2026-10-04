@@ -1,6 +1,7 @@
 package com.frostfirebloom.manaessencebridge.jei;
 
 import com.frostfirebloom.manaessencebridge.EssenceTier;
+import com.frostfirebloom.manaessencebridge.EssentideBlockEntity;
 import com.frostfirebloom.manaessencebridge.ManaEssenceBridge;
 import com.frostfirebloom.manaessencebridge.ModItems;
 import com.frostfirebloom.manaessencebridge.BridgeConfig;
@@ -44,7 +45,8 @@ public class BridgeJeiPlugin implements IModPlugin {
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
         registration.addRecipeCategories(
-                new ManaConversionCategory(registration.getJeiHelpers().getGuiHelper()));
+                new ManaConversionCategory(registration.getJeiHelpers().getGuiHelper()),
+                new EssentideCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
@@ -65,6 +67,13 @@ public class BridgeJeiPlugin implements IModPlugin {
         }
 
         registration.addRecipes(recipes, ManaConversionCategory.UID);
+        registration.addRecipes(essentideRecipes(), EssentideCategory.UID);
+        // Торт не крафтится - по R/U в JEI показываем, откуда он и что делает.
+        registration.addIngredientInfo(new ItemStack(ModItems.BIRTHDAY_CAKE.get()), VanillaTypes.ITEM,
+                "jei.manaessencebridge.birthday_cake.1",
+                "jei.manaessencebridge.birthday_cake.2",
+                "jei.manaessencebridge.birthday_cake.3",
+                "jei.manaessencebridge.birthday_cake.4");
     }
 
     private static IJeiRuntime runtime;
@@ -75,6 +84,10 @@ public class BridgeJeiPlugin implements IModPlugin {
     @Override
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
         runtime = jeiRuntime;
+        // JEI пересобирает список предметов с нуля при каждой перезагрузке
+        // ресурсов, то есть всё снова видно. Забываем, что прятали раньше,
+        // иначе сверка "уже спрятано" совпадёт и мы ничего не спрячем.
+        hidden.clear();
         ClientGates.setListener(BridgeJeiPlugin::refreshHidden);
         refreshHidden();
     }
@@ -127,5 +140,22 @@ public class BridgeJeiPlugin implements IModPlugin {
                         new ItemStack(ModItems.getCatalyst(tier).get()), ManaConversionCategory.UID);
             }
         }
+        // Конденсатор делает ту же работу, что и пул, только в обратную сторону.
+        registration.addRecipeCatalyst(new ItemStack(ModItems.ESSENCE_CONDENSER.get()), ManaConversionCategory.UID);
+        registration.addRecipeCatalyst(new ItemStack(ModItems.ESSENTIDE.get()), EssentideCategory.UID);
+    }
+
+    /** Все ресурсные эссенции MA, которые ест Эссентида: по тиру, внутри тира - по имени. */
+    private static List<EssentideRecipe> essentideRecipes() {
+        List<EssentideRecipe> list = new ArrayList<>();
+        for (Item item : net.minecraftforge.registries.ForgeRegistries.ITEMS.getValues()) {
+            int tier = EssentideBlockEntity.tierOf(item);
+            if (tier > 0) {
+                list.add(new EssentideRecipe(new ItemStack(item), tier, EssentideBlockEntity.manaFor(tier)));
+            }
+        }
+        list.sort(java.util.Comparator.comparingInt(EssentideRecipe::getTier)
+                .thenComparing(r -> String.valueOf(r.getEssence().getItem().getRegistryName())));
+        return list;
     }
 }

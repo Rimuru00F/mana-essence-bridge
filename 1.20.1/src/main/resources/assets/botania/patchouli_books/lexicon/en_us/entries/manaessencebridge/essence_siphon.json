@@ -1,0 +1,20 @@
+{
+  "name": "manaessencebridge.entry.essence_siphon",
+  "category": "botania:manaessencebridge",
+  "icon": "manaessencebridge:essence_siphon",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essence_siphon_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essence_siphon_p2"
+    },
+    {
+      "type": "crafting",
+      "recipe": "manaessencebridge:essence_siphon"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "manaessencebridge:tier_1_inferium",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:essence_mirror"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.essence_mirror.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.essence_mirror.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "reached": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

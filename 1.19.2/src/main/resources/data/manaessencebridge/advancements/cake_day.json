@@ -1,0 +1,23 @@
+{
+  "parent": "manaessencebridge:cake_not_lie",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:birthday_cake"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.cake_day.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.cake_day.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "criteria": {
+    "reached": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

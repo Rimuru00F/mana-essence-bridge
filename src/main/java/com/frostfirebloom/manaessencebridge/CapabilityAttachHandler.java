@@ -27,6 +27,10 @@ import javax.annotation.Nullable;
 public class CapabilityAttachHandler {
 
     private static final String TAG_TIER = "tier";
+    private static final String TAG_PROCESSED = "processed";
+    private static final String TAG_OWNER = "owner";
+    private static final String TAG_PULL = "pull";
+    private static final String TAG_BASE_CAP = "baseCap";
 
     /** Ключ из первой версии мода, когда прокачка была просто "да/нет". */
     private static final String TAG_LEGACY_UPGRADED = "upgraded";
@@ -41,10 +45,15 @@ public class CapabilityAttachHandler {
             return;
         }
 
+        CatalystProvider provider = new CatalystProvider(te);
         event.addCapability(
                 new ResourceLocation(ManaEssenceBridge.MODID, "inferium_catalyst"),
-                new CatalystProvider(te)
+                provider
         );
+        // Когда пул ломают или выгружают вместе с чанком, Forge зовёт этих
+        // слушателей. Без этого труба, закэшировавшая наш обработчик,
+        // продолжала бы слать эссенцию в уже несуществующий пул - и та пропадала бы.
+        event.addListener(provider::invalidate);
     }
 
     private static class CatalystProvider implements ICapabilitySerializable<CompoundNBT> {
@@ -52,11 +61,23 @@ public class CapabilityAttachHandler {
         private final InferiumCatalystCapability instance = new InferiumCatalystCapability();
         private final LazyOptional<InferiumCatalystCapability> catalystOptional = LazyOptional.of(() -> instance);
 
-        private final LazyOptional<IItemHandler> itemHandlerOptional;
+        private final PoolItemHandler handler;
+        private LazyOptional<IItemHandler> itemHandlerOptional;
 
         CatalystProvider(TileEntity tile) {
-            PoolItemHandler handler = new PoolItemHandler(tile);
+            this.handler = new PoolItemHandler(tile);
             this.itemHandlerOptional = LazyOptional.of(() -> handler);
+        }
+
+        /**
+         * Гасим ссылку, которую держат трубы, и заводим свежую - на случай,
+         * если этот же блок потом снова окажется в мире. Нашу собственную
+         * capability не трогаем: снаружи её никто не кэширует.
+         */
+        void invalidate() {
+            LazyOptional<IItemHandler> old = itemHandlerOptional;
+            itemHandlerOptional = LazyOptional.of(() -> handler);
+            old.invalidate();
         }
 
         @Nonnull
@@ -80,6 +101,12 @@ public class CapabilityAttachHandler {
         public CompoundNBT serializeNBT() {
             CompoundNBT tag = new CompoundNBT();
             tag.putInt(TAG_TIER, instance.getTier());
+            tag.putLong(TAG_PROCESSED, instance.getProcessed());
+            if (instance.getOwner() != null) {
+                tag.putUniqueId(TAG_OWNER, instance.getOwner());
+            }
+            tag.putBoolean(TAG_PULL, instance.isPullEnabled());
+            tag.putInt(TAG_BASE_CAP, instance.getBaseCapacity());
             return tag;
         }
 
@@ -91,6 +118,12 @@ public class CapabilityAttachHandler {
                 // Пулы, прокачанные ещё до появления тиров, становятся тиром 1.
                 instance.setTier(EssenceTier.INFERIUM.getLevel());
             }
+            instance.setProcessed(nbt.getLong(TAG_PROCESSED));
+            if (nbt.hasUniqueId(TAG_OWNER)) {
+                instance.setOwner(nbt.getUniqueId(TAG_OWNER));
+            }
+            instance.setPullEnabled(nbt.getBoolean(TAG_PULL));
+            instance.setBaseCapacity(nbt.getInt(TAG_BASE_CAP));
         }
     }
 }

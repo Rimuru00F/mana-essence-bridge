@@ -1,0 +1,21 @@
+{
+  "name": "manaessencebridge.entry.mana_ledger",
+  "category": "manaessencebridge:bridge",
+  "icon": "manaessencebridge:mana_ledger",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.mana_ledger_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.mana_ledger_p2"
+    },
+    {
+      "type": "crafting",
+      "text": "manaessencebridge.page.mana_ledger1",
+      "recipe": "manaessencebridge:mana_ledger"
+    }
+  ]
+}

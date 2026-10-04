@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "ingredients": [
+    {
+      "item": "botania:lens_normal"
+    },
+    {
+      "item": "mysticalagriculture:prudentium_essence"
+    },
+    {
+      "item": "mysticalagriculture:prudentium_essence"
+    },
+    {
+      "item": "botania:mana_diamond"
+    }
+  ],
+  "result": {
+    "item": "manaessencebridge:condensation_lens"
+  }
+}

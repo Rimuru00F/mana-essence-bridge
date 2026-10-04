@@ -69,6 +69,12 @@ public class ManaConversionCategory implements IRecipeCategory<ManaConversionRec
                 .addItemStack(recipe.getEssence());
         builder.addSlot(RecipeIngredientRole.CATALYST, 5, 31)
                 .addItemStack(recipe.getCatalyst());
+
+        // Обмен идёт в обе стороны, поэтому та же эссенция стоит и на выходе.
+        // Заодно категория становится находимой по клавише "как скрафтить",
+        // а не только через "где используется".
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 139, 15)
+                .addItemStack(recipe.getEssence());
     }
 
     @Override

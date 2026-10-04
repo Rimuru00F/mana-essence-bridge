@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "pattern": [
+    " E ",
+    "MHM",
+    " T "
+  ],
+  "key": {
+    "E": {
+      "item": "mysticalagriculture:inferium_essence"
+    },
+    "M": {
+      "item": "botania:manasteel_ingot"
+    },
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "T": {
+      "item": "botania:livingwood_twig"
+    }
+  },
+  "result": {
+    "item": "manaessencebridge:essence_siphon",
+    "count": 1
+  }
+}

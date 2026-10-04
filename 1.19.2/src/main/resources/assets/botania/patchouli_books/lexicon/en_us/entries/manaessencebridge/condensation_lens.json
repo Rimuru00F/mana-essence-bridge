@@ -1,0 +1,24 @@
+{
+  "name": "manaessencebridge.entry.condensation_lens",
+  "category": "botania:manaessencebridge",
+  "icon": "manaessencebridge:condensation_lens",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.condensation_lens_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.condensation_lens_p2"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.condensation_lens_p3"
+    },
+    {
+      "type": "crafting",
+      "recipe": "manaessencebridge:condensation_lens"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GIG",
+    "IDI",
+    "GIG"
+  ],
+  "key": {
+    "G": {
+      "item": "botania:mana_glass"
+    },
+    "I": {
+      "item": "botania:manasteel_ingot"
+    },
+    "D": {
+      "item": "botania:mana_diamond"
+    }
+  },
+  "result": {
+    "item": "manaessencebridge:expander_crystal",
+    "count": 1
+  }
+}

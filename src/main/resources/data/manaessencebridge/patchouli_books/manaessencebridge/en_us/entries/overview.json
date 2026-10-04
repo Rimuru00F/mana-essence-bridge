@@ -1,12 +1,16 @@
 {
   "name": "manaessencebridge.entry.overview",
-  "category": "botania:mana",
+  "category": "manaessencebridge:bridge",
   "icon": "manaessencebridge:inferium_mana_catalyst",
-  "sortnum": 100,
+  "sortnum": 0,
   "pages": [
     {
       "type": "text",
-      "text": "manaessencebridge.page.overview0"
+      "text": "manaessencebridge.page.overview_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.overview_p2"
     },
     {
       "type": "crafting",

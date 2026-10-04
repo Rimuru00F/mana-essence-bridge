@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "pattern": [
+    "LDL",
+    "MHM",
+    "LLL"
+  ],
+  "key": {
+    "L": {
+      "item": "botania:livingrock"
+    },
+    "D": {
+      "item": "botania:mana_diamond"
+    },
+    "M": {
+      "item": "botania:manasteel_ingot"
+    },
+    "H": {
+      "item": "minecraft:hopper"
+    }
+  },
+  "result": {
+    "item": "manaessencebridge:essence_condenser",
+    "count": 1
+  }
+}

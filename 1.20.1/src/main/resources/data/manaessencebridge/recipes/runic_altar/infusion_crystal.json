@@ -1,0 +1,33 @@
+{
+  "type": "botania:runic_altar",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "output": {
+    "item": "mysticalagriculture:infusion_crystal"
+  },
+  "mana": 10000,
+  "ingredients": [
+    {
+      "item": "mysticalagriculture:prosperity_shard"
+    },
+    {
+      "item": "mysticalagriculture:prosperity_shard"
+    },
+    {
+      "item": "mysticalagriculture:prosperity_shard"
+    },
+    {
+      "item": "mysticalagriculture:prosperity_shard"
+    },
+    {
+      "item": "botania:rune_mana"
+    },
+    {
+      "item": "botania:mana_diamond"
+    }
+  ]
+}

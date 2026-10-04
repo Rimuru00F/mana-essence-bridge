@@ -1,10 +1,18 @@
 package com.frostfirebloom.manaessencebridge;
 
 import com.frostfirebloom.manaessencebridge.client.ClientHudHandler;
+import com.frostfirebloom.manaessencebridge.compat.TopIntegration;
+import com.frostfirebloom.manaessencebridge.client.ClientTooltipHandler;
+import com.frostfirebloom.manaessencebridge.client.PoolGlowHandler;
+import com.frostfirebloom.manaessencebridge.client.CondenserRenderer;
+import com.frostfirebloom.manaessencebridge.client.WandHudAttacher;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -35,7 +43,11 @@ public class ManaEssenceBridge {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, BridgeConfig.COMMON_SPEC);
 
         // Регистрация предметов и вкладки креатива
+        ModBlocks.BLOCKS.register(modEventBus);
+        ModBlocks.BLOCK_ENTITIES.register(modEventBus);
+        modEventBus.addListener(this::enqueueImc);
         ModItems.ITEMS.register(modEventBus);
+        ModEffects.EFFECTS.register(modEventBus);
         modEventBus.addListener(ModItems::addToCreativeTab);
 
         // Регистрация капабилити
@@ -50,11 +62,46 @@ public class ManaEssenceBridge {
         MinecraftForge.EVENT_BUS.register(new ChunkSyncHandler());
         MinecraftForge.EVENT_BUS.register(new GateSyncHandler());
         MinecraftForge.EVENT_BUS.register(new PoolDropHandler());
+        MinecraftForge.EVENT_BUS.register(new PoolAutoPull());
+        MinecraftForge.EVENT_BUS.register(new CakeDay());
+        MinecraftForge.EVENT_BUS.addListener(WardeniaBlockEntity::onTrample);
+        MinecraftForge.EVENT_BUS.addListener(WardeniaBlockEntity::onExplosionStart);
+        MinecraftForge.EVENT_BUS.addListener(WardeniaBlockEntity::onExplosionDetonate);
+        MinecraftForge.EVENT_BUS.addListener(MelodiaBlockEntity::onNote);
+        MinecraftForge.EVENT_BUS.addListener(BoltbloomBlockEntity::onEntityJoin);
+        MinecraftForge.EVENT_BUS.addListener(BirthdayCheerEffect::onManaDiscount);
+        MinecraftForge.EVENT_BUS.addListener(BridgeCommand::register);
+        MinecraftForge.EVENT_BUS.addListener(PoolLedger::onServerTick);
+
+        // The One Probe узнаёт о нас через IMC. Проверка ModList не только
+        // ради вежливости: без неё класс интеграции подтянул бы за собой
+        // классы TOP, которых в сборке может не быть.
+        // Jade же находит свой плагин сама, по аннотации.
+        if (ModList.get().isLoaded("theoneprobe")) {
+            TopIntegration.register();
+        }
 
         // HUD существует только на клиенте - на сервере класс даже не грузится
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-                () -> () -> MinecraftForge.EVENT_BUS.register(new ClientHudHandler()));
+                () -> () -> {
+                    MinecraftForge.EVENT_BUS.register(new ClientHudHandler());
+                    MinecraftForge.EVENT_BUS.register(new ClientTooltipHandler());
+                    MinecraftForge.EVENT_BUS.register(new PoolGlowHandler());
+                    MinecraftForge.EVENT_BUS.register(new WandHudAttacher());
+                    modEventBus.addListener(CondenserRenderer::register);
+                });
 
         LOGGER.info("Mana Essence Bridge loaded - the bridge between Botania and Mystical Agriculture is ready");
+    }
+
+    /**
+     * Carry On перехватывает Shift+ПКМ пустыми руками по любому блоку с
+     * блок-сущностью и уносит блок - наш конденсатор этот клик просто не
+     * получал. Просим Carry On его не трогать; если Carry On в сборке нет,
+     * сообщение молча пропадёт. Пулы Botania у Carry On и так в чёрном списке.
+     */
+    private void enqueueImc(InterModEnqueueEvent event) {
+        InterModComms.sendTo("carryon", "blacklistBlock",
+                () -> ModBlocks.ESSENCE_CONDENSER.getId().toString());
     }
 }

@@ -6,6 +6,8 @@ license="MIT"
 modId="manaessencebridge"
 version="${file.jarVersion}"
 displayName="Mana Essence Bridge"
+logoFile="logo.png"
+logoBlur=false
 authors="Frostfire Bloom Team"
 description='''
 A bridge between Botania mana and Mystical Agriculture essence: an upgraded

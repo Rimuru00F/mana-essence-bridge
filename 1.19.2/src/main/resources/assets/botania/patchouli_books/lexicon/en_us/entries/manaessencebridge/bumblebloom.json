@@ -1,0 +1,21 @@
+{
+  "name": "manaessencebridge.entry.bumblebloom",
+  "category": "botania:manaessencebridge",
+  "icon": "manaessencebridge:bumblebloom",
+  "sortnum": 18,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.bumblebloom_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.bumblebloom_p2"
+    },
+    {
+      "type": "botania:petal_apothecary",
+      "text": "manaessencebridge.page.bumblebloom1",
+      "recipe": "manaessencebridge:bumblebloom"
+    }
+  ]
+}

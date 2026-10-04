@@ -22,7 +22,9 @@ public enum ProgressGate {
 
     TERRASTEEL(3, "botania:main/terrasteel_pickup"),
     ALFHEIM(4, "botania:main/elf_portal_open"),
-    GAIA(5, "botania:main/gaia_guardian_kill");
+    GAIA(5, "botania:main/gaia_guardian_kill"),
+    /** Шестой тир - только после Стража Гайи II (ритуал с Гайя-ядром). */
+    GAIA_HARDMODE(6, "botania:challenge/gaia_guardian_hardmode");
 
     private final int tierLevel;
     private final ResourceLocation advancement;
@@ -56,15 +58,29 @@ public enum ProgressGate {
         return null;
     }
 
+    /**
+     * Открыт ли гейт для игрока.
+     *
+     * Серверная проверка зовёт это без аргумента и при неизвестном результате
+     * ПРОПУСКАЕТ: если достижения нет (скажем, другая версия Botania), игрок
+     * не должен оказаться заблокирован навсегда.
+     *
+     * А маска для JEI зовёт с unknownMeansUnlocked=false и при тех же
+     * обстоятельствах ЗАПИРАЕТ: показать лишнее хуже, чем спрятать лишнее,
+     * и это всего лишь косметика.
+     */
     public boolean isUnlockedFor(ServerPlayerEntity player) {
+        return isUnlockedFor(player, true);
+    }
+
+    public boolean isUnlockedFor(ServerPlayerEntity player, boolean unknownMeansUnlocked) {
         MinecraftServer server = player.getServer();
         if (server == null) {
-            return true;
+            return unknownMeansUnlocked;
         }
         Advancement adv = server.getAdvancementManager().getAdvancement(advancement);
         if (adv == null) {
-            // Достижения нет (например, Botania другой версии) - не запираем.
-            return true;
+            return unknownMeansUnlocked;
         }
         return player.getAdvancements().getProgress(adv).isDone();
     }
@@ -73,7 +89,7 @@ public enum ProgressGate {
     public static int maskFor(ServerPlayerEntity player) {
         int mask = 0;
         for (ProgressGate gate : values()) {
-            if (gate.isUnlockedFor(player)) {
+            if (gate.isUnlockedFor(player, false)) {
                 mask |= 1 << gate.ordinal();
             }
         }

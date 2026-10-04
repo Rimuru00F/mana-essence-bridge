@@ -1,0 +1,33 @@
+{
+  "type": "botania:terra_plate",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "mana": 500000,
+  "ingredients": [
+    {
+      "item": "manaessencebridge:imperium_mana_catalyst"
+    },
+    {
+      "item": "mysticalagriculture:supremium_essence"
+    },
+    {
+      "item": "mysticalagriculture:supremium_essence"
+    },
+    {
+      "item": "mysticalagriculture:supremium_essence"
+    },
+    {
+      "item": "mysticalagriculture:supremium_essence"
+    },
+    {
+      "item": "botania:life_essence"
+    }
+  ],
+  "result": {
+    "item": "manaessencebridge:supremium_mana_catalyst"
+  }
+}

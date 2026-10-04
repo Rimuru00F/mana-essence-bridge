@@ -1,0 +1,23 @@
+{
+  "parent": "manaessencebridge:throughput_1m",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:resonance_crystal"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.full_circle.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.full_circle.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "reached": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

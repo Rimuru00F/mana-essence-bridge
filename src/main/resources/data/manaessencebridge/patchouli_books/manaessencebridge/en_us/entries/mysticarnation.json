@@ -1,0 +1,21 @@
+{
+  "name": "manaessencebridge.entry.mysticarnation",
+  "category": "manaessencebridge:bridge",
+  "icon": "manaessencebridge:mysticarnation",
+  "sortnum": 11,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.mysticarnation_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.mysticarnation_p2"
+    },
+    {
+      "type": "botania:petal_apothecary",
+      "text": "manaessencebridge.page.mysticarnation1",
+      "recipe": "manaessencebridge:mysticarnation"
+    }
+  ]
+}

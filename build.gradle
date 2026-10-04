@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 
-version = '1.16.5.1'
+version = '1.16.5.3.1'
 group = 'com.frostfirebloom.manaessencebridge'
 archivesBaseName = 'manaessencebridge'
 
@@ -78,6 +78,12 @@ dependencies {
     // Компилируемся против 7.7.1, а не 7.8.x, ради совместимости вниз -
     // API вкладок в ветке 7.x не менялось.
     compileOnly fg.deobf('curse.maven:jei-238222:4060770')
+
+    // The One Probe 1.16-3.1.7 (projectId 245211, fileId 3752096) - опциональна.
+    compileOnly fg.deobf('curse.maven:theoneprobe-245211:3752096')
+
+    // Jade 1.16.4-2.8.3 (projectId 324717, fileId 3910873) - опциональна.
+    compileOnly fg.deobf('curse.maven:jade-324717:3910873')
 }
 
 jar {

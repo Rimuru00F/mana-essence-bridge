@@ -1,0 +1,33 @@
+{
+  "name": "manaessencebridge.entry.cross_recipes",
+  "category": "botania:manaessencebridge",
+  "icon": "mysticalagriculture:prosperity_shard",
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.cross_recipes_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.cross_recipes_p2"
+    },
+    {
+      "type": "botania:mana_infusion",
+      "recipes": "manaessencebridge:mana_infusion/prosperity_shard"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.cross_recipes_p3"
+    },
+    {
+      "type": "botania:mana_infusion",
+      "recipes": "manaessencebridge:mana_infusion/fertilized_essence"
+    },
+    {
+      "type": "botania:runic_altar",
+      "text": "manaessencebridge.page.cross_recipes3",
+      "recipe": "manaessencebridge:runic_altar/infusion_crystal"
+    }
+  ]
+}

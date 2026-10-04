@@ -18,6 +18,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import vazkii.botania.api.mana.IManaPool;
+import vazkii.botania.api.mana.IThrottledPacket;
 import vazkii.botania.api.mana.spark.ISparkAttachable;
 
 /**
@@ -61,9 +62,46 @@ public class CatalystInteractionHandler {
         // Случай 1: применение катализатора
         if (heldItem.getItem() instanceof CatalystItem) {
             consume(event);
-            if (!world.isRemote) {
+            if (!world.isRemote && mayAct(player, cap)) {
                 applyCatalyst(world, pos, player, heldItem, te, pool, cap,
                         ((CatalystItem) heldItem.getItem()).getTier());
+            }
+            return;
+        }
+
+
+        // Случай 1б: резонансный кристалл снимает верхний тир.
+        // Требуем приседание: действие необратимое, случайный клик по пулу
+        // не должен разбирать прокачку.
+        if (heldItem.getItem() instanceof ResonanceCrystalItem) {
+            if (!player.isSneaking()) {
+                return;
+            }
+            consume(event);
+            if (!world.isRemote && mayAct(player, cap)) {
+                removeTier(world, pos, player, te, pool, cap);
+            }
+            return;
+        }
+
+        // Случай 1в: сифон включает и выключает автозабор из сундуков.
+        if (heldItem.getItem() instanceof EssenceSiphonItem) {
+            consume(event);
+            if (!world.isRemote && mayAct(player, cap)) {
+                toggleAutoPull(world, pos, player, te, cap);
+            }
+            return;
+        }
+
+        // Случай 1г: зеркало эссенции привязывается к прокачанному пулу.
+        if (heldItem.getItem() instanceof EssenceMirrorItem) {
+            consume(event);
+            if (!world.isRemote) {
+                if (!cap.isUpgraded()) {
+                    status(player, TextFormatting.YELLOW, "message.manaessencebridge.not_upgraded");
+                } else if (mayAct(player, cap)) {
+                    EssenceMirrorItem.bind(heldItem, world, pos, player);
+                }
             }
             return;
         }
@@ -86,7 +124,7 @@ public class CatalystInteractionHandler {
         // Случай 4: мана -> эссенция (Shift + пустая рука)
         if (heldItem.isEmpty() && player.isSneaking()) {
             consume(event);
-            if (!world.isRemote) {
+            if (!world.isRemote && mayAct(player, cap)) {
                 buyEssence(world, pos, player, te, pool, cap);
             }
         }
@@ -126,12 +164,31 @@ public class CatalystInteractionHandler {
             return;
         }
 
+        // Пул должен вмещать хотя бы одну эссенцию нового тира, иначе
+        // катализатор потратится впустую: ни продать, ни выкупить её
+        // в таком пуле не выйдет. Касается прежде всего разбавленного пула.
+        int targetCapacity = PoolCapacity.capacityFor(cap, te, target.getLevel());
+        if (targetCapacity < target.getManaCost()) {
+            status(player, TextFormatting.RED, "message.manaessencebridge.pool_too_small",
+                    target.getLevel(), CatalystItem.format(targetCapacity),
+                    CatalystItem.format(target.getManaCost()));
+            return;
+        }
+
         cap.setTier(target.getLevel());
+        if (cap.getOwner() == null) {
+            // Первый катализатор назначает хозяина - ему пойдут достижения
+            // за оборот, накрученный автоматикой.
+            cap.setOwner(player.getUniqueID());
+        }
         pool.setColor(target.getPoolColor());
+        PoolCapacity.apply(world, pos, te, cap);
         syncPool(world, pos, te);
         // Капабилити не едут в стандартном пакете TileEntity - шлём тир сами,
         // иначе HUD у клиента не узнает о прокачке.
-        ModNetwork.syncToTracking(world, pos, target.getLevel());
+        ModNetwork.syncToTracking(world, pos, cap);
+        PoolAutoPull.track(world, pos);
+        PoolThroughput.onTierChanged(player, cap);
 
         if (!player.isCreative()) {
             heldItem.shrink(1);
@@ -139,6 +196,9 @@ public class CatalystInteractionHandler {
 
         world.playSound(null, pos, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE,
                 SoundCategory.BLOCKS, 1.0F, 1.0F + 0.1F * target.getLevel());
+        world.playSound(null, pos, SoundEvents.BLOCK_BEACON_POWER_SELECT,
+                SoundCategory.BLOCKS, 0.7F, 0.8F + 0.15F * target.getLevel());
+        PoolEffects.burst(world, pos, target, 60, 0.45);
         status(player, TextFormatting.LIGHT_PURPLE, "message.manaessencebridge.upgraded",
                 target.getLevel(), target.getDisplayName());
     }
@@ -177,6 +237,7 @@ public class CatalystInteractionHandler {
         int mana = manaPer * count;
         pool.receiveMana(mana);
         syncPool(world, pos, te);
+        PoolThroughput.record(world, pos, cap, mana, player, true);
 
         if (!player.isCreative()) {
             heldItem.shrink(count);
@@ -184,19 +245,21 @@ public class CatalystInteractionHandler {
 
         world.playSound(null, pos, SoundEvents.BLOCK_BEACON_ACTIVATE,
                 SoundCategory.BLOCKS, 0.6F, 1.6F);
+        PoolEffects.burst(world, pos, tier, Math.min(8 + count * 2, 40), 0.3);
         status(player, TextFormatting.AQUA, "message.manaessencebridge.sold",
                 CatalystItem.format(mana), count, tier.getDisplayName());
     }
 
-    private void buyEssence(World world, BlockPos pos, PlayerEntity player, TileEntity te,
-                            IManaPool pool, InferiumCatalystCapability cap) {
+    /** Выкуп эссенции за ману пула; true - выкупили. */
+    static boolean buyEssence(World world, BlockPos pos, PlayerEntity player, TileEntity te,
+                              IManaPool pool, InferiumCatalystCapability cap) {
         // По умолчанию выдаём инфериум: цена случайного нажатия мала, а разницы
         // в экономике нет - 4 инфериума стоят ровно столько же, сколько один
         // прудентиум, и крафт вверх в Mystical Agriculture бесплатный.
         // С buyHighestTier=true берём самый старший доступный тир - меньше кликов.
         EssenceTier best = null;
         if (BridgeConfig.buyHighestTier()) {
-            for (int level = Math.min(cap.getTier(), BridgeConfig.maxTier()); level >= 1; level--) {
+            for (int level = Math.min(cap.getTier(), EssenceTier.maxEnabledLevel()); level >= 1; level--) {
                 EssenceTier candidate = EssenceTier.byLevel(level);
                 if (candidate != null && pool.getCurrentMana() >= candidate.getManaCost()) {
                     best = candidate;
@@ -210,7 +273,7 @@ public class CatalystInteractionHandler {
         if (best == null) {
             status(player, TextFormatting.YELLOW, "message.manaessencebridge.not_enough_mana",
                     CatalystItem.format(EssenceTier.INFERIUM.getManaCost()));
-            return;
+            return false;
         }
 
         Item essence = ForgeRegistries.ITEMS.getValue(best.getEssenceId());
@@ -218,11 +281,12 @@ public class CatalystInteractionHandler {
         if (essenceStack.isEmpty()) {
             status(player, TextFormatting.RED, "message.manaessencebridge.essence_missing",
                     best.getEssenceId().toString());
-            return;
+            return false;
         }
 
         pool.receiveMana(-best.getManaCost());
         syncPool(world, pos, te);
+        PoolThroughput.record(world, pos, cap, best.getManaCost(), player, false);
 
         if (!player.inventory.addItemStackToInventory(essenceStack)) {
             player.dropItem(essenceStack, false);
@@ -230,8 +294,107 @@ public class CatalystInteractionHandler {
 
         world.playSound(null, pos, SoundEvents.ENTITY_ITEM_PICKUP,
                 SoundCategory.BLOCKS, 0.8F, 1.2F);
+        PoolEffects.burst(world, pos, best, 12, 0.3);
         status(player, TextFormatting.GOLD, "message.manaessencebridge.bought",
                 CatalystItem.format(best.getManaCost()), best.getDisplayName());
+        return true;
+    }
+
+
+
+
+    /**
+     * Сифон: включает или выключает автозабор эссенции из соседних контейнеров.
+     * Сигнал редстоуна на пуле работает как замок у воронки - ставит на паузу,
+     * но сам переключатель не трогает.
+     */
+    private void toggleAutoPull(World world, BlockPos pos, PlayerEntity player, TileEntity te,
+                                InferiumCatalystCapability cap) {
+        if (!cap.isUpgraded()) {
+            status(player, TextFormatting.YELLOW, "message.manaessencebridge.not_upgraded");
+            return;
+        }
+        if (!BridgeConfig.pullFromContainers()) {
+            status(player, TextFormatting.RED, "message.manaessencebridge.pull_server_off");
+            return;
+        }
+
+        boolean enabled = !cap.isPullEnabled();
+        cap.setPullEnabled(enabled);
+        te.markDirty();
+        ModNetwork.syncToTracking(world, pos, cap);
+        if (enabled) {
+            PoolAutoPull.track(world, pos);
+            if (player instanceof net.minecraft.entity.player.ServerPlayerEntity) {
+                PoolThroughput.award((net.minecraft.entity.player.ServerPlayerEntity) player, "siphon_on");
+            }
+        }
+
+        world.playSound(null, pos, SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.BLOCKS, 0.5F, enabled ? 0.9F : 0.6F);
+        if (!enabled) {
+            status(player, TextFormatting.GRAY, "message.manaessencebridge.pull_off");
+        } else if (world.isBlockPowered(pos)) {
+            status(player, TextFormatting.GOLD, "message.manaessencebridge.pull_on_powered");
+        } else {
+            status(player, TextFormatting.AQUA, "message.manaessencebridge.pull_on");
+        }
+    }
+
+    /**
+     * Снимает верхний тир: возвращает катализатор, списывает ману из пула
+     * и откатывает цвет к предыдущему тиру (или к белому у чистого пула).
+     */
+    private void removeTier(World world, BlockPos pos, PlayerEntity player, TileEntity te,
+                            IManaPool pool, InferiumCatalystCapability cap) {
+        EssenceTier current = EssenceTier.byLevel(cap.getTier());
+        if (current == null) {
+            status(player, TextFormatting.YELLOW, "message.manaessencebridge.not_upgraded");
+            return;
+        }
+
+        int cost = current.getManaCost();
+        if (pool.getCurrentMana() < cost) {
+            status(player, TextFormatting.YELLOW, "message.manaessencebridge.crystal_no_mana",
+                    CatalystItem.format(cost));
+            return;
+        }
+
+        // Ёмкость после снятия тира уменьшится. Если мана в неё не влезет,
+        // лишнее сгорело бы - поэтому отказываем и просим сначала потратить.
+        int reducedCapacity = PoolCapacity.capacityFor(cap, te, Math.max(current.getLevel() - 1, 1));
+        if (pool.getCurrentMana() - cost > reducedCapacity) {
+            status(player, TextFormatting.YELLOW, "message.manaessencebridge.crystal_overflow",
+                    CatalystItem.format(reducedCapacity));
+            return;
+        }
+
+        pool.receiveMana(-cost);
+        cap.setTier(current.getLevel() - 1);
+        if (!cap.isUpgraded()) {
+            // Чистый пул не помнит автозабор: иначе после новой прокачки
+            // он внезапно начал бы тянуть из сундуков сам.
+            cap.setPullEnabled(false);
+        }
+
+        EssenceTier below = EssenceTier.byLevel(cap.getTier());
+        pool.setColor(below == null ? net.minecraft.item.DyeColor.WHITE : below.getPoolColor());
+        PoolCapacity.apply(world, pos, te, cap);
+        syncPool(world, pos, te);
+        ModNetwork.syncToTracking(world, pos, cap);
+        if (!cap.isUpgraded()) {
+            PoolAutoPull.untrack(world, pos);
+        }
+
+        ItemStack refund = new ItemStack(ModItems.getCatalyst(current).get());
+        if (!player.inventory.addItemStackToInventory(refund)) {
+            player.dropItem(refund, false);
+        }
+
+        world.playSound(null, pos, SoundEvents.BLOCK_BEACON_DEACTIVATE,
+                SoundCategory.BLOCKS, 0.8F, 1.3F);
+        PoolEffects.burst(world, pos, current, 30, 0.4);
+        status(player, TextFormatting.LIGHT_PURPLE, "message.manaessencebridge.tier_removed",
+                current.getLevel(), current.getDisplayName(), CatalystItem.format(cost));
     }
 
     // --- вспомогательное --------------------------------------------------
@@ -249,13 +412,20 @@ public class CatalystInteractionHandler {
     }
 
     /** Сохраняем TileEntity и рассылаем его клиентам - иначе цвет пула не обновится. */
-    private static void syncPool(World world, BlockPos pos, TileEntity te) {
+    static void syncPool(World world, BlockPos pos, TileEntity te) {
         if (te == null) {
             return;
         }
         te.markDirty();
         BlockState state = world.getBlockState(pos);
         world.notifyBlockUpdate(pos, state, state, 3);
+
+        // У пула Botania своя очередь пакетов: без этого вызова клиент
+        // не узнает о смене цвета, пока пул не синхронизируется по другой
+        // причине - например, из-за изменения маны.
+        if (te instanceof IThrottledPacket) {
+            ((IThrottledPacket) te).markDispatchable();
+        }
     }
 
     private static void consume(PlayerInteractEvent.RightClickBlock event) {
@@ -267,6 +437,15 @@ public class CatalystInteractionHandler {
     private static Object tierName(int level) {
         EssenceTier tier = EssenceTier.byLevel(level);
         return tier == null ? String.valueOf(level) : tier.getDisplayName();
+    }
+
+    /** Приватные пулы: чужим пулом распоряжается только хозяин (и операторы). */
+    private static boolean mayAct(PlayerEntity player, InferiumCatalystCapability cap) {
+        if (PoolAccess.mayUse(player, cap.getOwner())) {
+            return true;
+        }
+        status(player, TextFormatting.RED, "message.manaessencebridge.not_your_pool");
+        return false;
     }
 
     private static void status(PlayerEntity player, TextFormatting color, String key, Object... args) {

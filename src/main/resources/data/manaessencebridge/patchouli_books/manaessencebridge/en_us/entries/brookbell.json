@@ -1,0 +1,20 @@
+{
+  "name": "manaessencebridge.entry.brookbell",
+  "category": "manaessencebridge:bridge",
+  "icon": "manaessencebridge:brookbell",
+  "sortnum": 15,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.brookbell_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.brookbell_p2"
+    },
+    {
+      "type": "botania:petal_apothecary",
+      "recipe": "manaessencebridge:brookbell"
+    }
+  ]
+}

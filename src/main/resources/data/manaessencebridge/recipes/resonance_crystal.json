@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " M ",
+    "MDM",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "item": "botania:manasteel_ingot"
+    },
+    "D": {
+      "item": "botania:mana_diamond"
+    }
+  },
+  "result": {
+    "item": "manaessencebridge:resonance_crystal",
+    "count": 1
+  }
+}

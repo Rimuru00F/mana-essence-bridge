@@ -1,9 +1,9 @@
 {
   "name": "manaessencebridge.entry.supremium",
-  "category": "botania:alfhomancy",
+  "category": "manaessencebridge:bridge",
   "icon": "manaessencebridge:supremium_mana_catalyst",
   "advancement": "botania:main/gaia_guardian_kill",
-  "sortnum": 104,
+  "sortnum": 4,
   "pages": [
     {
       "type": "text",

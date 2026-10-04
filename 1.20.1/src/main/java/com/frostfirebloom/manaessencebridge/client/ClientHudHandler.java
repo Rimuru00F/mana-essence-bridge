@@ -11,10 +11,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import com.frostfirebloom.manaessencebridge.PoolAutoPull;
+import com.frostfirebloom.manaessencebridge.PoolCapacity;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import vazkii.botania.api.mana.ManaPool;
 
 /**
@@ -31,7 +35,8 @@ public class ClientHudHandler {
 
     @SubscribeEvent
     public void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
-        if (event.getOverlay() != VanillaGuiOverlay.CROSSHAIR.type() || !BridgeConfig.showHud()) {
+        if (event.getOverlay() != VanillaGuiOverlay.CROSSHAIR.type()
+                || !BridgeConfig.showHud() || overlayModPresent()) {
             return;
         }
 
@@ -73,16 +78,56 @@ public class ClientHudHandler {
                 centerX, y, COLOR_TEXT);
         y += 10;
         drawCentered(graphics, font, I18n.get("hud.manaessencebridge.stored",
-                        CatalystItem.format(pool.getCurrentMana())),
+                        CatalystItem.format(pool.getCurrentMana()),
+                        CatalystItem.format(PoolCapacity.maxMana(te))),
+                centerX, y, COLOR_TEXT);
+        y += 10;
+        drawCentered(graphics, font, I18n.get("hud.manaessencebridge.processed",
+                        CatalystItem.format(ClientPoolTiers.getProcessed(pos))),
+                centerX, y, COLOR_TEXT);
+        y += 10;
+        drawCentered(graphics, font, I18n.get(PoolAutoPull.statusKey(
+                        ClientPoolTiers.isPullEnabled(pos), mc.level.hasNeighborSignal(pos))),
                 centerX, y, COLOR_TEXT);
     }
 
-    /** Чтобы тиры одного мира не показывались в другом. */
+    /**
+     * Тиры сбрасываем при любой выгрузке клиентского мира, включая переход
+     * в другое измерение: пулы Верхнего мира не должны всплыть в Незере
+     * на тех же координатах. Сервер дошлёт их заново по чанкам.
+     */
     @SubscribeEvent
     public void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel().isClientSide()) {
             ClientPoolTiers.clear();
         }
+    }
+
+    /**
+     * А маску гейтов - только при выходе с сервера. Сервер шлёт её лишь при
+     * входе и при новом достижении, так что сброс при смене измерения прятал
+     * катализаторы в JEI до перезахода.
+     */
+    @SubscribeEvent
+    public void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        ClientGates.clear();
+    }
+
+
+    /**
+     * Свой HUD нужен только тем, у кого нет Jade или The One Probe.
+     * Иначе игрок видел бы одно и то же дважды: наш текст сверху экрана
+     * и строку в оверлее. Отключить нашу строку в Jade или TOP игрок
+     * может их же настройками, поэтому третьего переключателя не завожу.
+     */
+    private static Boolean overlayModPresent;
+
+    private static boolean overlayModPresent() {
+        if (overlayModPresent == null) {
+            overlayModPresent = ModList.get().isLoaded("jade")
+                    || ModList.get().isLoaded("theoneprobe");
+        }
+        return overlayModPresent;
     }
 
     private static void drawCentered(GuiGraphics graphics, Font font, String text, int centerX, int y, int color) {

@@ -1,0 +1,23 @@
+{
+  "name": "manaessencebridge.entry.insanium",
+  "category": "manaessencebridge:bridge",
+  "icon": "manaessencebridge:insanium_mana_catalyst",
+  "advancement": "botania:challenge/gaia_guardian_hardmode",
+  "flag": "mod:mysticalagradditions",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.insanium0"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.insanium1"
+    },
+    {
+      "type": "botania:runic_altar",
+      "text": "manaessencebridge.page.insanium2",
+      "recipe": "manaessencebridge:insanium_mana_catalyst"
+    }
+  ]
+}

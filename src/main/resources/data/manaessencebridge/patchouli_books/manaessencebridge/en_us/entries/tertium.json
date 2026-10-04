@@ -1,9 +1,9 @@
 {
   "name": "manaessencebridge.entry.tertium",
-  "category": "botania:mana",
+  "category": "manaessencebridge:bridge",
   "icon": "manaessencebridge:tertium_mana_catalyst",
   "advancement": "botania:main/terrasteel_pickup",
-  "sortnum": 102,
+  "sortnum": 2,
   "pages": [
     {
       "type": "text",

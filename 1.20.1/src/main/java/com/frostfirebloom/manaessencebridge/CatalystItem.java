@@ -34,6 +34,10 @@ public class CatalystItem extends Item {
 
         tooltip.add(line(ChatFormatting.LIGHT_PURPLE, "tooltip.manaessencebridge.upgrades_to",
                 tier.getLevel(), tier.getDisplayName()));
+        if (PoolCapacity.multiplier(tier.getLevel()) > 1) {
+            tooltip.add(line(ChatFormatting.AQUA, "tooltip.manaessencebridge.capacity",
+                    PoolCapacity.multiplier(tier.getLevel())));
+        }
 
         if (previous != null) {
             tooltip.add(line(ChatFormatting.GRAY, "tooltip.manaessencebridge.requires_tier",
@@ -56,7 +60,12 @@ public class CatalystItem extends Item {
 
     /** 512000 -> "512 000", чтобы большие числа читались в подсказке. */
     public static String format(int value) {
-        String raw = Integer.toString(value);
+        return format((long) value);
+    }
+
+    /** Оборот пула за всю жизнь легко перерастает int - отсюда long. */
+    public static String format(long value) {
+        String raw = Long.toString(value);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < raw.length(); i++) {
             if (i > 0 && (raw.length() - i) % 3 == 0) {

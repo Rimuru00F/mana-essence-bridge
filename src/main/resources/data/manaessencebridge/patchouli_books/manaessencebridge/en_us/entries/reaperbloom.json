@@ -1,0 +1,21 @@
+{
+  "name": "manaessencebridge.entry.reaperbloom",
+  "category": "manaessencebridge:bridge",
+  "icon": "manaessencebridge:reaperbloom",
+  "sortnum": 12,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.reaperbloom_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.reaperbloom_p2"
+    },
+    {
+      "type": "botania:petal_apothecary",
+      "text": "manaessencebridge.page.reaperbloom1",
+      "recipe": "manaessencebridge:reaperbloom"
+    }
+  ]
+}

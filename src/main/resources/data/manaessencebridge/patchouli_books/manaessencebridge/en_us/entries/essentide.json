@@ -1,0 +1,24 @@
+{
+  "name": "manaessencebridge.entry.essentide",
+  "category": "manaessencebridge:bridge",
+  "icon": "manaessencebridge:essentide",
+  "sortnum": 14,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essentide_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essentide_p2"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.essentide_p3"
+    },
+    {
+      "type": "botania:petal_apothecary",
+      "recipe": "manaessencebridge:essentide"
+    }
+  ]
+}

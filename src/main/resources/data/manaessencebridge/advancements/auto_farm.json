@@ -1,0 +1,26 @@
+{
+  "parent": "manaessencebridge:tier_1_inferium",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:reaperbloom"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.auto_farm.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.auto_farm.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "mysticarnation": {
+      "trigger": "minecraft:impossible"
+    },
+    "reaperbloom": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

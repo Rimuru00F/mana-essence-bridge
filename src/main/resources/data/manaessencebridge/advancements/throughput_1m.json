@@ -1,0 +1,23 @@
+{
+  "parent": "manaessencebridge:throughput_100k",
+  "display": {
+    "icon": {
+      "item": "mysticalagriculture:tertium_essence"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.throughput_1m.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.throughput_1m.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "reached": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "type": "botania:petal_apothecary",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "output": {
+    "item": "manaessencebridge:essentide"
+  },
+  "ingredients": [
+    {
+      "tag": "botania:petals/lime"
+    },
+    {
+      "tag": "botania:petals/lime"
+    },
+    {
+      "tag": "botania:petals/cyan"
+    },
+    {
+      "tag": "botania:petals/light_blue"
+    },
+    {
+      "item": "botania:rune_water"
+    },
+    {
+      "item": "mysticalagriculture:prudentium_essence"
+    }
+  ]
+}

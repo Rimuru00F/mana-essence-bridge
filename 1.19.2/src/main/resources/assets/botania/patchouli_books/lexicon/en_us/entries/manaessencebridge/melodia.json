@@ -1,0 +1,20 @@
+{
+  "name": "manaessencebridge.entry.melodia",
+  "category": "botania:manaessencebridge",
+  "icon": "manaessencebridge:melodia",
+  "sortnum": 17,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.melodia_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.melodia_p2"
+    },
+    {
+      "type": "botania:petal_apothecary",
+      "recipe": "manaessencebridge:melodia"
+    }
+  ]
+}

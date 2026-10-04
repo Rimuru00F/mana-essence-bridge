@@ -150,6 +150,12 @@ dependencies {
     // JEI 1.20.1-15.58.0.209 (projectId 238222, fileId 8820520) - опциональна.
     compileOnly fg.deobf('curse.maven:jei-238222:8820520')
 
+    // The One Probe 1.20.1-10.0.4 (projectId 245211, fileId 8856919) - опциональна.
+    compileOnly fg.deobf('curse.maven:theoneprobe-245211:8856919')
+
+    // Jade 1.20.1-Forge-11.13.3 (projectId 324717, fileId 8479276) - опциональна.
+    compileOnly fg.deobf('curse.maven:jade-324717:8479276')
+
     // Mystical Agriculture в зависимостях не нужна: эссенции ищутся
     // по строковому идентификатору через реестр предметов.
 

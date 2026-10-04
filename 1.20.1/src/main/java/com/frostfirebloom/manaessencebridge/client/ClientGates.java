@@ -26,6 +26,15 @@ public final class ClientGates {
         return ProgressGate.isTierUnlocked(mask, tierLevel);
     }
 
+    /**
+     * Вызывается при выходе с сервера. Без этого прогресс из прошлого мира
+     * держался бы до прихода пакета от нового сервера, и запертые тиры
+     * успели бы мелькнуть в JEI.
+     */
+    public static void clear() {
+        set(0);
+    }
+
     /** JEI-плагин подписывается сюда, чтобы перепрятывать предметы при смене маски. */
     public static void setListener(Runnable runnable) {
         listener = runnable;

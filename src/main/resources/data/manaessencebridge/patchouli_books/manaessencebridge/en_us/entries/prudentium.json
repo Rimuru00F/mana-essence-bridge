@@ -1,8 +1,8 @@
 {
   "name": "manaessencebridge.entry.prudentium",
-  "category": "botania:mana",
+  "category": "manaessencebridge:bridge",
   "icon": "manaessencebridge:prudentium_mana_catalyst",
-  "sortnum": 101,
+  "sortnum": 1,
   "pages": [
     {
       "type": "text",

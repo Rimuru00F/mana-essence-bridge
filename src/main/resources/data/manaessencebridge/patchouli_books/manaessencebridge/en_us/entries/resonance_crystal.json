@@ -1,0 +1,20 @@
+{
+  "name": "manaessencebridge.entry.resonance_crystal",
+  "category": "manaessencebridge:bridge",
+  "icon": "manaessencebridge:resonance_crystal",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.resonance_crystal_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.resonance_crystal_p2"
+    },
+    {
+      "type": "crafting",
+      "recipe": "manaessencebridge:resonance_crystal"
+    }
+  ]
+}

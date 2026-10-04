@@ -17,7 +17,12 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
  */
 public final class ModNetwork {
 
-    private static final String PROTOCOL_VERSION = "1";
+    // Поднимается при любом изменении формата пакетов, чтобы Forge честно
+    // отказал во входе, а не клиент вылетел посреди игры на чужом пакете.
+    // "2" - в PoolTierPacket добавился оборот пула (версия 3),
+    // "3" - флаг автозабора (версия 3.1).
+    // "4" - окна Мана-гроссбуха и Зеркала эссенции (версия 4.0).
+    private static final String PROTOCOL_VERSION = "4";
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(ManaEssenceBridge.MODID, "main"),
@@ -33,15 +38,32 @@ public final class ModNetwork {
                 PoolTierPacket::encode, PoolTierPacket::decode, PoolTierPacket::handle);
         CHANNEL.registerMessage(1, GatePacket.class,
                 GatePacket::encode, GatePacket::decode, GatePacket::handle);
+        CHANNEL.registerMessage(2, LedgerPacket.class,
+                LedgerPacket::encode, LedgerPacket::decode, LedgerPacket::handle);
+        CHANNEL.registerMessage(3, MirrorPacket.class,
+                MirrorPacket::encode, MirrorPacket::decode, MirrorPacket::handle);
+        CHANNEL.registerMessage(4, MirrorActionPacket.class,
+                MirrorActionPacket::encode, MirrorActionPacket::decode, MirrorActionPacket::handle);
     }
 
-    /** Разослать тир всем, кто видит этот чанк. */
-    public static void syncToTracking(World world, BlockPos pos, int tier) {
+    /** Разослать состояние пула всем, кто видит этот чанк. */
+    public static void syncToTracking(World world, BlockPos pos, InferiumCatalystCapability cap) {
+        sendTracking(world, pos, new PoolTierPacket(pos, cap.getTier(), cap.getProcessed(), cap.isPullEnabled()));
+        // Всё, что меняет пул, проходит здесь - заодно обновляем Мана-гроссбух.
+        PoolLedger.update(world, pos, cap);
+    }
+
+    /** Пул сломан или потерял прокачку - клиенты должны его забыть. */
+    public static void syncRemoved(World world, BlockPos pos) {
+        sendTracking(world, pos, new PoolTierPacket(pos, 0, 0L, false));
+        PoolLedger.remove(world, pos);
+    }
+
+    private static void sendTracking(World world, BlockPos pos, PoolTierPacket packet) {
         if (world.isRemote) {
             return;
         }
-        CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> world.getChunkAt(pos)),
-                new PoolTierPacket(pos, tier));
+        CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> world.getChunkAt(pos)), packet);
     }
 
     /** Сообщить игроку, какие гейты прогрессии у него открыты. */
@@ -50,7 +72,8 @@ public final class ModNetwork {
     }
 
     /** Отправить тир одному игроку - при заходе в зону видимости чанка. */
-    public static void syncToPlayer(ServerPlayerEntity player, BlockPos pos, int tier) {
-        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new PoolTierPacket(pos, tier));
+    public static void syncToPlayer(ServerPlayerEntity player, BlockPos pos, InferiumCatalystCapability cap) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                new PoolTierPacket(pos, cap.getTier(), cap.getProcessed(), cap.isPullEnabled()));
     }
 }

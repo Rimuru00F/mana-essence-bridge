@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "botania:manasteel_ingot"
+    },
+    {
+      "item": "botania:mana_pearl"
+    }
+  ],
+  "result": {
+    "item": "manaessencebridge:mana_ledger"
+  }
+}

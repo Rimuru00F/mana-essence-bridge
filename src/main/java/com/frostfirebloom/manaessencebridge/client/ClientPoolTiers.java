@@ -3,10 +3,12 @@ package com.frostfirebloom.manaessencebridge.client;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Клиентский кеш "позиция пула -> тир". Заполняется пакетами с сервера.
+ * Клиентский кеш состояния пулов: тир, оборот и автозабор. Заполняется
+ * пакетами с сервера.
  *
  * Отдельная карта, а не capability на клиентском TileEntity: пакет о тире
  * вполне может прийти раньше, чем клиент создаст сам TileEntity, и тогда
@@ -15,15 +17,26 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ClientPoolTiers {
 
     private static final Map<BlockPos, Integer> TIERS = new ConcurrentHashMap<>();
+    private static final Map<BlockPos, Long> PROCESSED = new ConcurrentHashMap<>();
+    private static final Set<BlockPos> PULLING = ConcurrentHashMap.newKeySet();
 
     private ClientPoolTiers() {
     }
 
-    public static void put(BlockPos pos, int tier) {
+    public static void put(BlockPos pos, int tier, long processed, boolean pullEnabled) {
+        BlockPos key = pos.toImmutable();
         if (tier <= 0) {
-            TIERS.remove(pos.toImmutable());
+            TIERS.remove(key);
+            PROCESSED.remove(key);
+            PULLING.remove(key);
+            return;
+        }
+        TIERS.put(key, tier);
+        PROCESSED.put(key, processed);
+        if (pullEnabled) {
+            PULLING.add(key);
         } else {
-            TIERS.put(pos.toImmutable(), tier);
+            PULLING.remove(key);
         }
     }
 
@@ -32,8 +45,26 @@ public final class ClientPoolTiers {
         return tier == null ? 0 : tier;
     }
 
-    /** Вызывается при выходе из мира - иначе тиры протекут в следующий мир. */
+    /** Сколько маны прошло через пул - для строки "Оборот" в HUD и Jade. */
+    public static long getProcessed(BlockPos pos) {
+        Long value = PROCESSED.get(pos);
+        return value == null ? 0L : value;
+    }
+
+    /** Обойти все известные прокачанные пулы - для свечения. */
+    public static void forEachTier(java.util.function.BiConsumer<BlockPos, Integer> action) {
+        TIERS.forEach(action);
+    }
+
+    /** Включён ли на пуле автозабор сифоном. */
+    public static boolean isPullEnabled(BlockPos pos) {
+        return PULLING.contains(pos);
+    }
+
+    /** Вызывается при выгрузке клиентского мира - иначе тиры протекут в следующий. */
     public static void clear() {
         TIERS.clear();
+        PROCESSED.clear();
+        PULLING.clear();
     }
 }
