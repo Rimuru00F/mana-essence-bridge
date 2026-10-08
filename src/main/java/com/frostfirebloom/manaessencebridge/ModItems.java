@@ -51,6 +51,18 @@ public class ModItems {
                     () -> new net.minecraft.item.BlockItem(ModBlocks.EXPANDER_CRYSTAL.get(),
                             new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
 
+    /** Пояс Стражении: защита цветка вокруг игрока, слот пояса Curios. */
+    public static final RegistryObject<Item> WARDENIA_BELT =
+            ITEMS.register("wardenia_belt", WardeniaBeltItem::new);
+
+    /** Мана-удобрение: Fertilized Essence, настоянная в пуле. */
+    public static final RegistryObject<Item> MANA_FERTILIZER =
+            ITEMS.register("mana_fertilizer", ManaFertilizerItem::new);
+
+    /** Супер мана-удобрение: 5x5, сразу до спелости. */
+    public static final RegistryObject<Item> GREATER_MANA_FERTILIZER = ITEMS.register("greater_mana_fertilizer",
+            () -> new ManaFertilizerItem(2, true, "tooltip.manaessencebridge.greater_fertilizer_use"));
+
     /** Праздничный мана-тортик: подарок 17 октября, во вкладках креатива его нет. */
     public static final RegistryObject<Item> BIRTHDAY_CAKE =
             ITEMS.register("birthday_cake", () -> new BirthdayCakeItem(ModBlocks.BIRTHDAY_CAKE.get()));
@@ -66,32 +78,64 @@ public class ModItems {
             () -> new net.minecraft.item.BlockItem(ModBlocks.MYSTICARNATION.get(),
                     new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
 
+    public static final RegistryObject<Item> FLOATING_MYSTICARNATION = ITEMS.register("floating_mysticarnation",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.FLOATING_MYSTICARNATION.get(),
+                    new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
+
     public static final RegistryObject<Item> REAPERBLOOM = ITEMS.register("reaperbloom",
             () -> new net.minecraft.item.BlockItem(ModBlocks.REAPERBLOOM.get(),
+                    new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
+
+    public static final RegistryObject<Item> FLOATING_REAPERBLOOM = ITEMS.register("floating_reaperbloom",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.FLOATING_REAPERBLOOM.get(),
                     new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
 
     public static final RegistryObject<Item> WARDENIA = ITEMS.register("wardenia",
             () -> new net.minecraft.item.BlockItem(ModBlocks.WARDENIA.get(),
                     new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
 
+    public static final RegistryObject<Item> FLOATING_WARDENIA = ITEMS.register("floating_wardenia",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.FLOATING_WARDENIA.get(),
+                    new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
+
     public static final RegistryObject<Item> ESSENTIDE = ITEMS.register("essentide",
             () -> new net.minecraft.item.BlockItem(ModBlocks.ESSENTIDE.get(),
+                    new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
+
+    public static final RegistryObject<Item> FLOATING_ESSENTIDE = ITEMS.register("floating_essentide",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.FLOATING_ESSENTIDE.get(),
                     new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
 
     public static final RegistryObject<Item> BROOKBELL = ITEMS.register("brookbell",
             () -> new net.minecraft.item.BlockItem(ModBlocks.BROOKBELL.get(),
                     new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
 
+    public static final RegistryObject<Item> FLOATING_BROOKBELL = ITEMS.register("floating_brookbell",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.FLOATING_BROOKBELL.get(),
+                    new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
+
     public static final RegistryObject<Item> BOLTBLOOM = ITEMS.register("boltbloom",
             () -> new net.minecraft.item.BlockItem(ModBlocks.BOLTBLOOM.get(),
+                    new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
+
+    public static final RegistryObject<Item> FLOATING_BOLTBLOOM = ITEMS.register("floating_boltbloom",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.FLOATING_BOLTBLOOM.get(),
                     new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
 
     public static final RegistryObject<Item> MELODIA = ITEMS.register("melodia",
             () -> new net.minecraft.item.BlockItem(ModBlocks.MELODIA.get(),
                     new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
 
+    public static final RegistryObject<Item> FLOATING_MELODIA = ITEMS.register("floating_melodia",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.FLOATING_MELODIA.get(),
+                    new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
+
     public static final RegistryObject<Item> BUMBLEBLOOM = ITEMS.register("bumblebloom",
             () -> new net.minecraft.item.BlockItem(ModBlocks.BUMBLEBLOOM.get(),
+                    new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
+
+    public static final RegistryObject<Item> FLOATING_BUMBLEBLOOM = ITEMS.register("floating_bumblebloom",
+            () -> new net.minecraft.item.BlockItem(ModBlocks.FLOATING_BUMBLEBLOOM.get(),
                     new Item.Properties().group(net.minecraft.item.ItemGroup.MISC)));
 
     public static RegistryObject<Item> getCatalyst(EssenceTier tier) {

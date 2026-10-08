@@ -43,7 +43,7 @@ public class EssenceMirrorItem extends Item {
     private static final String TAG_POOL = "BoundPool";
     private static final int COOLDOWN = 10;
     /** Перезарядка кнопок окна - чтобы зажатая мышь не грузила чанк пула каждый тик. */
-    private static final int ACTION_COOLDOWN = 4;
+    private static final int ACTION_COOLDOWN = 2;
 
     public EssenceMirrorItem() {
         super(new Item.Properties().maxStackSize(1).group(ItemGroup.MISC));
@@ -58,6 +58,17 @@ public class EssenceMirrorItem extends Item {
         world.playSound(null, pos, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.PLAYERS, 1.0F, 1.2F);
         status(player, TextFormatting.AQUA, "message.manaessencebridge.mirror_bound",
                 pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    /** Позиция привязанного пула, если он в этом измерении; иначе null. */
+    @Nullable
+    static BlockPos boundPos(ItemStack stack, World world) {
+        CompoundNBT bound = stack.getTag() == null ? null : stack.getTag().getCompound(TAG_POOL);
+        if (bound == null || bound.isEmpty()
+                || !world.getDimensionKey().getLocation().toString().equals(bound.getString("dim"))) {
+            return null;
+        }
+        return BlockPos.fromLong(bound.getLong("pos"));
     }
 
     /** Привязанный пул, найденный и проверенный. */
@@ -109,13 +120,15 @@ public class EssenceMirrorItem extends Item {
             return ActionResult.func_233538_a_(stack, true);
         }
         ServerPlayerEntity sp = (ServerPlayerEntity) player;
+        // перезарядка до поиска пула: даже неудачный клик не грузит чанк снова и снова;
+        // окно - коротко, чтобы первая кнопка в нём сразу работала
+        player.getCooldownTracker().setCooldown(this, player.isSneaking() ? COOLDOWN : ACTION_COOLDOWN);
         Bound b = resolve(stack, sp);
         if (b == null) {
             return ActionResult.resultFail(stack);
         }
-        player.getCooldownTracker().setCooldown(this, COOLDOWN);
         if (player.isSneaking()) {
-            if (sendAll(b, player)) {
+            if (send(b, player, 0, Integer.MAX_VALUE)) {
                 done(sp, 1.4F);
             }
         } else {
@@ -127,22 +140,24 @@ public class EssenceMirrorItem extends Item {
     }
 
     /** Кнопка окна; приходит в MirrorActionPacket. */
-    static void handleAction(ServerPlayerEntity player, int handIndex, int action, int tierLevel) {
+    static void handleAction(ServerPlayerEntity player, int handIndex, int action, int tierLevel, int count) {
         Hand hand = handIndex == 1 ? Hand.OFF_HAND : Hand.MAIN_HAND;
         ItemStack stack = player.getHeldItem(hand);
         if (!(stack.getItem() instanceof EssenceMirrorItem) || player.getCooldownTracker().hasCooldown(stack.getItem())) {
             return;
         }
+        player.getCooldownTracker().setCooldown(stack.getItem(), ACTION_COOLDOWN);
         Bound b = resolve(stack, player);
         if (b == null) {
             return;
         }
-        player.getCooldownTracker().setCooldown(stack.getItem(), ACTION_COOLDOWN);
         boolean ok;
         if (action == MirrorActionPacket.SEND_ALL) {
-            ok = sendAll(b, player);
+            ok = send(b, player, 0, Integer.MAX_VALUE);
+        } else if (action == MirrorActionPacket.SELL) {
+            ok = send(b, player, tierLevel, Math.max(1, Math.min(count, 64 * 36)));
         } else {
-            ok = buy(b, player, EssenceTier.byLevel(tierLevel), action == MirrorActionPacket.BUY_STACK ? 64 : 1);
+            ok = buy(b, player, EssenceTier.byLevel(tierLevel), Math.max(1, Math.min(count, 64)));
         }
         if (ok) {
             done(player, action == MirrorActionPacket.SEND_ALL ? 1.4F : 1.0F);
@@ -189,15 +204,21 @@ public class EssenceMirrorItem extends Item {
         return true;
     }
 
-    /** Вся эссенция из инвентаря - в пул, старшие тиры первыми, сколько влезет. */
-    private static boolean sendAll(Bound b, PlayerEntity player) {
+    /**
+     * Эссенция из инвентаря - в пул, старшие тиры первыми, сколько влезет:
+     * вся (onlyTier = 0) или только одного тира, не больше limit штук.
+     */
+    private static boolean send(Bound b, PlayerEntity player, int onlyTier, int limit) {
         long total = 0;
         int count = 0;
         boolean noSpace = false;
         List<ItemStack> items = player.inventory.mainInventory;
         for (int lvl = EssenceTier.maxEnabledLevel(); lvl >= 1; lvl--) {
             EssenceTier tier = EssenceTier.byLevel(lvl);
-            if (tier == null || !tier.isEnabled() || !b.cap.supports(tier)) {
+            if (count >= limit) {
+                break;
+            }
+            if (tier == null || !tier.isEnabled() || !b.cap.supports(tier) || (onlyTier > 0 && lvl != onlyTier)) {
                 continue;
             }
             int manaPer = tier.getManaPerEssence();
@@ -206,7 +227,7 @@ public class EssenceMirrorItem extends Item {
                     continue;
                 }
                 int space = Math.max(0, PoolCapacity.maxMana(b.te) - b.pool.getCurrentMana());
-                int n = Math.min(stack.getCount(), space / manaPer);
+                int n = Math.min(Math.min(stack.getCount(), limit - count), space / manaPer);
                 if (n <= 0) {
                     noSpace = true;
                     break;
@@ -217,7 +238,29 @@ public class EssenceMirrorItem extends Item {
                 stack.shrink(n);
                 total += mana;
                 count += n;
+                if (count >= limit) {
+                    break;
+                }
             }
+        }
+        // предметы из курсов датапака - только при «отправить всё»
+        for (ItemStack stack : onlyTier > 0 ? java.util.Collections.<ItemStack>emptyList() : items) {
+            PoolExchange.Price price = PoolExchange.custom(stack);
+            if (count >= limit || price == null || !price.fits(b.cap)) {
+                continue;
+            }
+            int space = Math.max(0, PoolCapacity.maxMana(b.te) - b.pool.getCurrentMana());
+            int n = Math.min(Math.min(stack.getCount(), limit - count), space / price.mana);
+            if (n <= 0) {
+                noSpace = true;
+                continue;
+            }
+            int mana = price.mana * n;
+            b.pool.receiveMana(mana);
+            PoolThroughput.record(b.world, b.pos, b.cap, mana, player, true);
+            stack.shrink(n);
+            total += mana;
+            count += n;
         }
         if (count == 0) {
             status(player, TextFormatting.YELLOW, noSpace ? "message.manaessencebridge.mirror_pool_full"
@@ -241,7 +284,7 @@ public class EssenceMirrorItem extends Item {
         }
         MirrorPacket packet = new MirrorPacket(open, hand == Hand.OFF_HAND ? 1 : 0,
                 b.world.getDimensionKey().getLocation().toString(), b.pos, b.cap.getTier(),
-                b.pool.getCurrentMana(), PoolCapacity.maxMana(b.te), PoolAccess.mayUse(player, b.cap.getOwner()), offers);
+                b.pool.getCurrentMana(), PoolCapacity.maxMana(b.te), PoolAccess.mayUse(player, b.cap.getOwner()), b.cap.getLinks().size(), offers);
         ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
     }
 
@@ -257,6 +300,7 @@ public class EssenceMirrorItem extends Item {
         }
         tooltip.add(text("tooltip.manaessencebridge.mirror_use", TextFormatting.LIGHT_PURPLE));
         tooltip.add(text("tooltip.manaessencebridge.mirror_send", TextFormatting.LIGHT_PURPLE));
+        tooltip.add(text("tooltip.manaessencebridge.mirror_link", TextFormatting.LIGHT_PURPLE));
         tooltip.add(text("tooltip.manaessencebridge.mirror_dim", TextFormatting.DARK_GRAY));
     }
 

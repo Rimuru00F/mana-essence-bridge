@@ -1,0 +1,23 @@
+{
+  "parent": "manaessencebridge:condenser_set",
+  "display": {
+    "icon": {
+      "item": "botania:twig_wand"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.condenser_link.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.condenser_link.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "reached": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

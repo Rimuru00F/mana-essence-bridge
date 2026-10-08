@@ -1,0 +1,23 @@
+{
+  "parent": "manaessencebridge:full_pool",
+  "display": {
+    "icon": {
+      "item": "botania:mana_tablet"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.mana_baron.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.mana_baron.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "reached": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

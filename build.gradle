@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 
-version = '1.16.5.3.1'
+version = '1.16.5-4.0'
 group = 'com.frostfirebloom.manaessencebridge'
 archivesBaseName = 'manaessencebridge'
 
@@ -56,6 +56,14 @@ minecraft {
 }
 
 repositories {
+    // Curios API: Botania без него не запускается, так что в игре он есть всегда.
+    maven {
+        name = 'Curios'
+        url = 'https://maven.theillusivec4.top/'
+        content {
+            includeGroup 'top.theillusivec4.curios'
+        }
+    }
     maven {
         name = 'CurseMaven'
         url = 'https://cursemaven.com'
@@ -84,6 +92,8 @@ dependencies {
 
     // Jade 1.16.4-2.8.3 (projectId 324717, fileId 3910873) - опциональна.
     compileOnly fg.deobf('curse.maven:jade-324717:3910873')
+    // Curios API - для Пояса Стражении (слот пояса).
+    compileOnly fg.deobf('top.theillusivec4.curios:curios-forge:1.16.5-4.1.0.0:api')
 }
 
 jar {

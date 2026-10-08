@@ -44,6 +44,8 @@ public class MelodiaBlockEntity extends GeneratingFlowerBlockEntity implements F
 
     public MelodiaBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.MELODIA_BE.get(), pos, state);
+        // парящий вариант: Botania после загрузки отмечает только свои парящие блоки
+        setFloating(FloatingManaFlowerBlock.isFloating(state));
         Arrays.fill(history, -1);
     }
 

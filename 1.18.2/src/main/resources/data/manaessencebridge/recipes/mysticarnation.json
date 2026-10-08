@@ -1,0 +1,35 @@
+{
+  "type": "botania:petal_apothecary",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "output": {
+    "item": "manaessencebridge:mysticarnation"
+  },
+  "ingredients": [
+    {
+      "tag": "botania:petals/lime"
+    },
+    {
+      "tag": "botania:petals/lime"
+    },
+    {
+      "tag": "botania:petals/green"
+    },
+    {
+      "tag": "botania:petals/yellow"
+    },
+    {
+      "item": "botania:rune_spring"
+    },
+    {
+      "item": "botania:redstone_root"
+    },
+    {
+      "item": "mysticalagriculture:prudentium_essence"
+    }
+  ]
+}

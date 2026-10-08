@@ -39,10 +39,13 @@ public final class BridgeConfig {
         public final ForgeConfigSpec.BooleanValue hideLockedInJei;
         public final ForgeConfigSpec.BooleanValue showHud;
         public final ForgeConfigSpec.BooleanValue poolGlow;
+        public final ForgeConfigSpec.BooleanValue animateFloatingFlowers;
         public final ForgeConfigSpec.BooleanValue privatePools;
         public final ForgeConfigSpec.BooleanValue keepManaOnBreak;
         public final ForgeConfigSpec.IntValue expanderPercent;
         public final ForgeConfigSpec.IntValue expanderMaxCrystals;
+        public final ForgeConfigSpec.IntValue manaFertilizerStages;
+        public final ForgeConfigSpec.IntValue poolLinkRate;
         public final ForgeConfigSpec.IntValue mysticarnationRange;
         public final ForgeConfigSpec.IntValue reaperbloomRange;
         public final ForgeConfigSpec.IntValue wardeniaMoistenCost;
@@ -137,6 +140,11 @@ public final class BridgeConfig {
                             "Client-side only.")
                     .define("poolGlow", true);
 
+            animateFloatingFlowers = builder
+                    .comment("Floating flowers of this mod slowly spin and bob, like Botania's.",
+                            "Client-side only; false draws them still.")
+                    .define("animateFloatingFlowers", true);
+
             privatePools = builder
                     .comment("Only a pool's owner (the player who placed its first catalyst) can buy essence",
                             "from it, remove its tier, switch its Essence Siphon or tie a condenser to it.",
@@ -155,6 +163,17 @@ public final class BridgeConfig {
             expanderMaxCrystals = builder
                     .comment("How many Expander Crystals one pool counts at most.")
                     .defineInRange("expanderMaxCrystals", 8, 1, 64);
+
+            manaFertilizerStages = builder
+                    .comment("Growth stages a Mana Fertilizer gives every Mystical Agriculture crop in its 3x3 area.",
+                            "Its mana price is in the recipe manaessencebridge:mana_infusion/mana_fertilizer (45000).",
+                            "Raise both together, or growing crops gets cheaper than their essence is worth.")
+                    .defineInRange("manaFertilizerStages", 2, 1, 7);
+
+            poolLinkRate = builder
+                    .comment("Pool network: mana a link between two pools moves per second, at most.",
+                            "Linked pools even out how full they are. 0 turns the network off.")
+                    .defineInRange("poolLinkRate", 50000, 0, 100000000);
 
             builder.pop();
             builder.comment("Flowers").push("flowers");
@@ -328,6 +347,22 @@ public final class BridgeConfig {
         }
     }
 
+    public static int poolLinkRate() {
+        try {
+            return COMMON.poolLinkRate.get();
+        } catch (IllegalStateException e) {
+            return 50000;
+        }
+    }
+
+    public static int manaFertilizerStages() {
+        try {
+            return COMMON.manaFertilizerStages.get();
+        } catch (IllegalStateException e) {
+            return 2;
+        }
+    }
+
     public static int expanderMaxCrystals() {
         try {
             return COMMON.expanderMaxCrystals.get();
@@ -469,6 +504,14 @@ public final class BridgeConfig {
             return COMMON.bumblebloomCooldownSeconds.get();
         } catch (IllegalStateException e) {
             return 40;
+        }
+    }
+
+    public static boolean animateFloatingFlowers() {
+        try {
+            return COMMON.animateFloatingFlowers.get();
+        } catch (IllegalStateException e) {
+            return true;
         }
     }
 

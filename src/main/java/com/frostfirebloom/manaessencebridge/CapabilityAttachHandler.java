@@ -31,6 +31,7 @@ public class CapabilityAttachHandler {
     private static final String TAG_OWNER = "owner";
     private static final String TAG_PULL = "pull";
     private static final String TAG_BASE_CAP = "baseCap";
+    private static final String TAG_LINKS = "links";
 
     /** Ключ из первой версии мода, когда прокачка была просто "да/нет". */
     private static final String TAG_LEGACY_UPGRADED = "upgraded";
@@ -107,6 +108,9 @@ public class CapabilityAttachHandler {
             }
             tag.putBoolean(TAG_PULL, instance.isPullEnabled());
             tag.putInt(TAG_BASE_CAP, instance.getBaseCapacity());
+            if (!instance.getLinks().isEmpty()) {
+                tag.putLongArray(TAG_LINKS, instance.getLinks().stream().mapToLong(net.minecraft.util.math.BlockPos::toLong).toArray());
+            }
             return tag;
         }
 
@@ -124,6 +128,11 @@ public class CapabilityAttachHandler {
             }
             instance.setPullEnabled(nbt.getBoolean(TAG_PULL));
             instance.setBaseCapacity(nbt.getInt(TAG_BASE_CAP));
+            java.util.List<net.minecraft.util.math.BlockPos> links = new java.util.ArrayList<>();
+            for (long packed : nbt.getLongArray(TAG_LINKS)) {
+                links.add(net.minecraft.util.math.BlockPos.fromLong(packed));
+            }
+            instance.setLinks(links);
         }
     }
 }

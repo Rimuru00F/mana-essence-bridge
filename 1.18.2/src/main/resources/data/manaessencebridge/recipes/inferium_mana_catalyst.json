@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "pattern": [
+    " M ",
+    "MEM",
+    " M "
+  ],
+  "key": {
+    "M": {
+      "item": "botania:mana_pearl"
+    },
+    "E": {
+      "item": "mysticalagriculture:inferium_essence"
+    }
+  },
+  "result": {
+    "item": "manaessencebridge:inferium_mana_catalyst",
+    "count": 1
+  }
+}

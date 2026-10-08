@@ -1,5 +1,7 @@
 package com.frostfirebloom.manaessencebridge.client;
 
+import com.frostfirebloom.manaessencebridge.PoolExchange;
+
 import com.frostfirebloom.manaessencebridge.CatalystItem;
 import com.frostfirebloom.manaessencebridge.EssenceTier;
 import com.frostfirebloom.manaessencebridge.MirrorActionPacket;
@@ -26,7 +28,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  */
 public class MirrorScreen extends Screen {
 
-    private static final int PANEL_W = 340;
+    private static final int PANEL_W = 380;
     private static final int HEADER_H = 60;
     private static final int ROW_H = 24;
 
@@ -43,6 +45,12 @@ public class MirrorScreen extends Screen {
     private int top;
     private int panelH;
     private Button sendAll;
+    private final java.util.List<Button> buy = new java.util.ArrayList<>();
+    private final java.util.List<Button> sell = new java.util.ArrayList<>();
+
+    /** Сколько покупать и продавать за нажатие; выбор помнится, пока игра открыта. */
+    private static final int[] AMOUNTS = {1, 4, 8, 16, 32, 64};
+    private static int amount = 3;
 
     public MirrorScreen(MirrorPacket state) {
         super(Component.translatable("gui.manaessencebridge.mirror.title"));
@@ -63,6 +71,8 @@ public class MirrorScreen extends Screen {
 
     @Override
     protected void init() {
+        buy.clear();
+        sell.clear();
         int rows = state.offers.size();
         panelH = HEADER_H + rows * ROW_H + (state.mayBuy ? 0 : 12) + 30;
         left = (width - PANEL_W) / 2;
@@ -70,22 +80,28 @@ public class MirrorScreen extends Screen {
         for (int i = 0; i < rows; i++) {
             MirrorPacket.Offer offer = state.offers.get(i);
             int y = top + HEADER_H + i * ROW_H + 4;
-            boolean afford = state.mayBuy && state.mana >= offer.buyCost;
-            Button one = new Button(left + PANEL_W - 78, y, 30, 16, Component.literal("×1"),
-                    b -> act(MirrorActionPacket.BUY_ONE, offer.tier));
-            Button stack = new Button(left + PANEL_W - 46, y, 38, 16, Component.literal("×64"),
-                    b -> act(MirrorActionPacket.BUY_STACK, offer.tier));
-            one.active = afford;
-            stack.active = afford;
-            addRenderableWidget(one);
-            addRenderableWidget(stack);
+            buy.add(addRenderableWidget(new Button(left + PANEL_W - 122, y, 56, 16, Component.translatable("gui.manaessencebridge.mirror.buy"), b -> act(MirrorActionPacket.BUY, offer.tier))));
+            sell.add(addRenderableWidget(new Button(left + PANEL_W - 64, y, 56, 16, Component.translatable("gui.manaessencebridge.mirror.sell"), b -> act(MirrorActionPacket.SELL, offer.tier))));
         }
-        sendAll = addRenderableWidget(new Button(left + 8, top + panelH - 26, PANEL_W - 16, 20, Component.empty(),
-                b -> act(MirrorActionPacket.SEND_ALL, 0)));
+        int y = top + panelH - 26;
+        addRenderableWidget(new Button(left + 8, y, 20, 20, Component.literal("<"), b -> step(-1)));
+        addRenderableWidget(new Button(left + 74, y, 20, 20, Component.literal(">"), b -> step(1)));
+        sendAll = addRenderableWidget(new Button(left + 100, y, PANEL_W - 108, 20, Component.empty(), b -> act(MirrorActionPacket.SEND_ALL, 0)));
     }
 
     private void act(int action, int tier) {
-        ModNetwork.CHANNEL.sendToServer(new MirrorActionPacket(state.hand, action, tier));
+        ModNetwork.CHANNEL.sendToServer(new MirrorActionPacket(state.hand, action, tier, AMOUNTS[amount]));
+    }
+
+    private void step(int delta) {
+        amount = Math.max(0, Math.min(AMOUNTS.length - 1, amount + delta));
+    }
+
+    /** Колесо мыши меняет количество. */
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        step(delta > 0 ? 1 : -1);
+        return true;
     }
 
     /** Сколько эссенции, которую берёт пул, лежит у игрока (всего или одного тира). */
@@ -97,7 +113,15 @@ public class MirrorScreen extends Screen {
         int total = 0;
         for (ItemStack stack : player.getInventory().items) {
             EssenceTier tier = stack.isEmpty() ? null : EssenceTier.fromItem(stack.getItem());
-            if (tier == null || (onlyTier > 0 && tier.getLevel() != onlyTier)) {
+            if (tier == null) {
+                // предмет из курсов датапака уходит в пул вместе со «всей эссенцией»
+                PoolExchange.Price price = onlyTier > 0 ? null : PoolExchange.custom(stack);
+                if (price != null && price.tier <= state.tier) {
+                    total += stack.getCount();
+                }
+                continue;
+            }
+            if (onlyTier > 0 && tier.getLevel() != onlyTier) {
                 continue;
             }
             for (MirrorPacket.Offer offer : state.offers) {
@@ -139,6 +163,10 @@ public class MirrorScreen extends Screen {
         font.draw(pose, Component.translatable("gui.manaessencebridge.ledger.coords",
                 state.pos.getX(), state.pos.getY(), state.pos.getZ(), LedgerScreen.shortDim(state.dim)),
                 left + 8, top + 17, TEXT_DIM);
+        if (state.links > 0) {
+            Component links = Component.translatable("gui.manaessencebridge.mirror.links", state.links);
+            font.draw(pose, links, left + PANEL_W - 8 - font.width(links), top + 17, TEXT_DIM);
+        }
 
         // пул: катализатор, тир, полоса маны цвета тира
         int color = LedgerScreen.tierColor(state.tier);
@@ -186,6 +214,12 @@ public class MirrorScreen extends Screen {
                     left + 8, top + HEADER_H + state.offers.size() * ROW_H + 1, 0xFFE06C6C);
         }
 
+        for (int i = 0; i < state.offers.size() && i < buy.size(); i++) {
+            MirrorPacket.Offer offer = state.offers.get(i);
+            buy.get(i).active = state.mayBuy && state.mana >= offer.buyCost;
+            sell.get(i).active = essenceInInventory(offer.tier) > 0 && state.maxMana - state.mana >= offer.sellPrice;
+        }
+        font.draw(pose, "x" + AMOUNTS[amount], left + 51 - font.width("x" + AMOUNTS[amount]) / 2, top + panelH - 20, TEXT);
         int have = essenceInInventory(0);
         sendAll.setMessage(Component.translatable("gui.manaessencebridge.mirror.send_all", have));
         sendAll.active = have > 0 && state.mana < state.maxMana;

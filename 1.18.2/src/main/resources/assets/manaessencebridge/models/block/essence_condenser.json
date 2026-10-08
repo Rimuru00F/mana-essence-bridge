@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "manaessencebridge:block/essence_condenser_top",
+    "bottom": "manaessencebridge:block/essence_condenser_bottom",
+    "side": "manaessencebridge:block/essence_condenser_side"
+  }
+}

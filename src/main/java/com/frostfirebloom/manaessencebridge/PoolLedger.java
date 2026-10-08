@@ -42,6 +42,8 @@ public class PoolLedger extends WorldSavedData {
         public int maxMana;
         public long processed;
         public boolean pull;
+        /** Связи пула в сети пулов (позиции в том же измерении). */
+        public long[] links = new long[0];
         /** Данные свежие: пул сейчас загружен и прочитан только что. */
         public transient boolean live;
         /** Скорость маны в минуту по двум последним замерам (hasRate - замеров уже два). */
@@ -180,6 +182,7 @@ public class PoolLedger extends WorldSavedData {
         e.maxMana = PoolCapacity.maxMana(te);
         e.processed = cap.getProcessed();
         e.pull = cap.isPullEnabled();
+        e.links = cap.getLinks().stream().mapToLong(p -> p.toLong()).toArray();
     }
 
     /**
@@ -244,6 +247,7 @@ public class PoolLedger extends WorldSavedData {
             e.maxMana = t.getInt("max");
             e.processed = t.getLong("processed");
             e.pull = t.getBoolean("pull");
+            e.links = t.getLongArray("links");
             entries.put(key(e.dim, e.blockPos()), e);
         }
     }
@@ -261,6 +265,9 @@ public class PoolLedger extends WorldSavedData {
             t.putInt("max", e.maxMana);
             t.putLong("processed", e.processed);
             t.putBoolean("pull", e.pull);
+            if (e.links.length > 0) {
+                t.putLongArray("links", e.links);
+            }
             list.add(t);
         }
         tag.put("pools", list);

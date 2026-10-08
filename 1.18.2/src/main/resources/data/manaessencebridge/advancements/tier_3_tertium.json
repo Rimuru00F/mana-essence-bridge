@@ -1,0 +1,32 @@
+{
+  "parent": "manaessencebridge:tier_2_prudentium",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:tertium_mana_catalyst"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.tier_3_tertium.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.tier_3_tertium.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_catalyst": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "manaessencebridge:tertium_mana_catalyst"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

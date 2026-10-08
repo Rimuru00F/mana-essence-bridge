@@ -98,7 +98,17 @@ public final class PoolCapacity {
      * ёмкость. Работает и на клиенте - Botania синхронизирует обе величины.
      */
     public static int maxMana(TileEntity te) {
-        if (!(te instanceof IManaPool) || !(te instanceof ISparkAttachable)) {
+        if (!(te instanceof IManaPool)) {
+            return 0;
+        }
+        // Ёмкость - поле manaCap из NBT пула. «Запас + свободное место» верно не
+        // всегда: над Mana Void Botania отдаёт место, равное всей ёмкости, и
+        // полный пул выглядел бы вдвое больше.
+        CompoundNBT tag = te.write(new CompoundNBT());
+        if (tag.getInt(TAG_MANA_CAP) > 0) {
+            return tag.getInt(TAG_MANA_CAP);
+        }
+        if (!(te instanceof ISparkAttachable)) {
             return 0;
         }
         long value = (long) ((IManaPool) te).getCurrentMana()

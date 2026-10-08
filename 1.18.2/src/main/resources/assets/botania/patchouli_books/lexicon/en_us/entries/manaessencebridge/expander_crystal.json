@@ -1,0 +1,21 @@
+{
+  "name": "manaessencebridge.entry.expander_crystal",
+  "category": "botania:manaessencebridge",
+  "icon": "manaessencebridge:expander_crystal",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.expander_crystal_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.expander_crystal_p2"
+    },
+    {
+      "type": "crafting",
+      "text": "manaessencebridge.page.expander_crystal1",
+      "recipe": "manaessencebridge:expander_crystal"
+    }
+  ]
+}

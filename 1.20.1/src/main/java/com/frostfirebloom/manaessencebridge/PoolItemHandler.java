@@ -53,18 +53,16 @@ public class PoolItemHandler implements IItemHandler {
             return stack;
         }
 
-        EssenceTier tier = EssenceTier.fromItem(stack.getItem());
-        if (tier == null || !tier.isEnabled()) {
-            return stack;
-        }
-
+        // эссенция MA или предмет из курсов датапака (PoolExchange)
+        PoolExchange.Price price = PoolExchange.priceOf(stack);
         InferiumCatalystCapability cap =
                 tile.getCapability(ModCapabilities.INFERIUM_CATALYST_CAPABILITY).orElse(null);
-        if (cap == null || !cap.supports(tier)) {
+        if (price == null || !price.fits(cap)) {
             return stack;
         }
+        EssenceTier tier = price.look();
 
-        int manaPer = tier.getManaPerEssence();
+        int manaPer = price.mana;
         int space = availableSpace(tile);
         int accepted = Math.min(stack.getCount(), space / manaPer);
         if (accepted <= 0) {
@@ -110,13 +108,10 @@ public class PoolItemHandler implements IItemHandler {
         if (!BridgeConfig.automationEnabled() || tile.isRemoved()) {
             return false;
         }
-        EssenceTier tier = EssenceTier.fromItem(stack.getItem());
-        if (tier == null || !tier.isEnabled()) {
-            return false;
-        }
+        PoolExchange.Price price = PoolExchange.priceOf(stack);
         InferiumCatalystCapability cap =
                 tile.getCapability(ModCapabilities.INFERIUM_CATALYST_CAPABILITY).orElse(null);
-        return cap != null && cap.supports(tier);
+        return price != null && price.fits(cap);
     }
 
     /** В 1.20.1 у ManaPool появился getMaxMana - обходной путь через SparkAttachable больше не нужен. */

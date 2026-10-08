@@ -48,12 +48,19 @@ public class ManaFlowerBlock extends BushBlock implements IWandable, IWandHUD {
 
     private final Supplier<? extends TileEntity> factory;
     private final String[] tooltip;
+    private static final net.minecraft.util.ResourceLocation RED_STRING_RELAY =
+            new net.minecraft.util.ResourceLocation("botania", "red_string_relay");
 
     public ManaFlowerBlock(Supplier<? extends TileEntity> factory, String... tooltip) {
-        super(AbstractBlock.Properties.create(Material.PLANTS)
+        this(AbstractBlock.Properties.create(Material.PLANTS)
                 .doesNotBlockMovement()
                 .zeroHardnessAndResistance()
-                .sound(SoundType.PLANT));
+                .sound(SoundType.PLANT), factory, tooltip);
+    }
+
+    /** Для парящего варианта - со своими свойствами блока. */
+    protected ManaFlowerBlock(AbstractBlock.Properties properties, Supplier<? extends TileEntity> factory, String... tooltip) {
+        super(properties);
         this.factory = factory;
         this.tooltip = tooltip;
     }
@@ -61,7 +68,8 @@ public class ManaFlowerBlock extends BushBlock implements IWandable, IWandHUD {
     @SuppressWarnings("deprecation")
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
-        return SHAPE;
+        net.minecraft.util.math.vector.Vector3d offset = state.getOffset(world, pos);
+        return SHAPE.withOffset(offset.x, offset.y, offset.z);
     }
 
     @Override
@@ -85,7 +93,9 @@ public class ManaFlowerBlock extends BushBlock implements IWandable, IWandHUD {
         }
         if (placer instanceof net.minecraft.entity.player.ServerPlayerEntity) {
             // «Ферма на цветках»: у достижения по критерию на каждый цветок мода
-            String flower = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(this).getPath();
+            // парящий вариант засчитывается за тот же цветок
+            String flower = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(this).getPath()
+                    .replace("floating_", "");
             PoolThroughput.award((net.minecraft.entity.player.ServerPlayerEntity) placer, "auto_farm", flower);
             // «Садовник Botania»: по критерию на каждый из восьми цветков мода
             PoolThroughput.award((net.minecraft.entity.player.ServerPlayerEntity) placer, "gardener", flower);
@@ -113,5 +123,36 @@ public class ManaFlowerBlock extends BushBlock implements IWandable, IWandHUD {
             lines.add(new TranslationTextComponent(tooltip[i])
                     .mergeStyle(i == 0 ? TextFormatting.LIGHT_PURPLE : TextFormatting.GRAY));
         }
+    }
+
+    /** Как у цветков Botania: можно сажать и на Red String Relay. */
+    @Override
+    protected boolean isValidGround(BlockState state, IBlockReader world, BlockPos pos) {
+        return RED_STRING_RELAY.equals(state.getBlock().getRegistryName()) || super.isValidGround(state, world, pos);
+    }
+
+    /** Как у цветков Botania: функциональный цветок, выключенный редстоуном, искрит. */
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void animateTick(BlockState state, World world, BlockPos pos, java.util.Random random) {
+        TileEntity te = world.getTileEntity(pos);
+        if (!(te instanceof vazkii.botania.api.subtile.TileEntityFunctionalFlower) || !random.nextBoolean()) {
+            return;
+        }
+        vazkii.botania.api.subtile.TileEntityFunctionalFlower flower = (vazkii.botania.api.subtile.TileEntityFunctionalFlower) te;
+        VoxelShape shape = state.getShape(world, pos);
+        if (flower.acceptsRedstone() && flower.redstoneSignal > 0 && !shape.isEmpty()) {
+            net.minecraft.util.math.AxisAlignedBB box = shape.getBoundingBox();
+            world.addParticle(net.minecraft.particles.RedstoneParticleData.REDSTONE_DUST,
+                    pos.getX() + box.minX + random.nextDouble() * (box.maxX - box.minX),
+                    pos.getY() + box.minY + random.nextDouble() * (box.maxY - box.minY),
+                    pos.getZ() + box.minZ + random.nextDouble() * (box.maxZ - box.minZ), 0, 0, 0);
+        }
+    }
+
+    /** Как ванильные цветы и цветки Botania - чуть сдвинут в блоке случайным образом. */
+    @Override
+    public AbstractBlock.OffsetType getOffsetType() {
+        return AbstractBlock.OffsetType.XZ;
     }
 }

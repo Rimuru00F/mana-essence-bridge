@@ -1,0 +1,18 @@
+{
+  "name": "manaessencebridge.entry.tertium",
+  "category": "botania:manaessencebridge",
+  "icon": "manaessencebridge:tertium_mana_catalyst",
+  "advancement": "botania:main/terrasteel_pickup",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.tertium0"
+    },
+    {
+      "type": "botania:runic_altar",
+      "text": "manaessencebridge.page.tertium1",
+      "recipe": "manaessencebridge:tertium_mana_catalyst"
+    }
+  ]
+}

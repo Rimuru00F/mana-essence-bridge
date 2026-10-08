@@ -46,6 +46,7 @@ public class ManaEssenceBridge {
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlocks.BLOCK_ENTITIES.register(modEventBus);
         modEventBus.addListener(this::enqueueImc);
+        modEventBus.addListener(ManaFertilizerItem::onCommonSetup);
         ModItems.ITEMS.register(modEventBus);
         ModEffects.EFFECTS.register(modEventBus);
         modEventBus.addListener(ModItems::addToCreativeTab);
@@ -67,11 +68,18 @@ public class ManaEssenceBridge {
         MinecraftForge.EVENT_BUS.addListener(WardeniaBlockEntity::onTrample);
         MinecraftForge.EVENT_BUS.addListener(WardeniaBlockEntity::onExplosionStart);
         MinecraftForge.EVENT_BUS.addListener(WardeniaBlockEntity::onExplosionDetonate);
+        // Пояс Стражении - после цветка: взрыв, погашенный цветком, сюда уже не дойдёт
+        MinecraftForge.EVENT_BUS.addListener(WardeniaBeltItem::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(WardeniaBeltItem::onExplosionStart);
+        MinecraftForge.EVENT_BUS.addListener(WardeniaBeltItem::onTrample);
         MinecraftForge.EVENT_BUS.addListener(MelodiaBlockEntity::onNote);
         MinecraftForge.EVENT_BUS.addListener(BoltbloomBlockEntity::onEntityJoin);
         MinecraftForge.EVENT_BUS.addListener(BirthdayCheerEffect::onManaDiscount);
         MinecraftForge.EVENT_BUS.addListener(BridgeCommand::register);
         MinecraftForge.EVENT_BUS.addListener(PoolLedger::onServerTick);
+        MinecraftForge.EVENT_BUS.addListener(PoolNetwork::onLevelTick);
+        MinecraftForge.EVENT_BUS.addListener(PoolExchange::onAddReloadListeners);
+        MinecraftForge.EVENT_BUS.addListener(PoolExchange::onDatapackSync);
 
         // The One Probe узнаёт о нас через IMC. Проверка ModList не только
         // ради вежливости: без неё класс интеграции подтянул бы за собой
@@ -89,6 +97,7 @@ public class ManaEssenceBridge {
                     MinecraftForge.EVENT_BUS.register(new PoolGlowHandler());
                     MinecraftForge.EVENT_BUS.register(new WandHudAttacher());
                     modEventBus.addListener(CondenserRenderer::register);
+                    modEventBus.addListener(com.frostfirebloom.manaessencebridge.client.ManaFlowerRenderer::register);
                 });
 
         LOGGER.info("Mana Essence Bridge loaded - the bridge between Botania and Mystical Agriculture is ready");

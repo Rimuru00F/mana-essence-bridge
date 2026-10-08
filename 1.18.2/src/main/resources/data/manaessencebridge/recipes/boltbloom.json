@@ -1,0 +1,26 @@
+{
+  "type": "botania:petal_apothecary",
+  "output": {
+    "item": "manaessencebridge:boltbloom"
+  },
+  "ingredients": [
+    {
+      "tag": "botania:petals/blue"
+    },
+    {
+      "tag": "botania:petals/purple"
+    },
+    {
+      "tag": "botania:petals/yellow"
+    },
+    {
+      "tag": "botania:petals/gray"
+    },
+    {
+      "item": "botania:rune_air"
+    },
+    {
+      "item": "botania:rune_fire"
+    }
+  ]
+}

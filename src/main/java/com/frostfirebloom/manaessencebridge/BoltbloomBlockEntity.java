@@ -45,6 +45,13 @@ public class BoltbloomBlockEntity extends TileEntityGeneratingFlower implements 
         super(ModBlocks.BOLTBLOOM_BE.get());
     }
 
+    /** Парящий вариант: Botania после загрузки отмечает только свои парящие блоки. */
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        setFloating(FloatingManaFlowerBlock.isFloating(getBlockState()));
+    }
+
     @Override
     public void tickFlower() {
         super.tickFlower();
@@ -74,7 +81,7 @@ public class BoltbloomBlockEntity extends TileEntityGeneratingFlower implements 
     private void trySelfStrike(ServerWorld world) {
         int seconds = BridgeConfig.boltbloomSelfStrikeSeconds();
         BlockPos pos = getEffectivePos();
-        if (seconds <= 0 || !world.isThundering() || !world.isRainingAt(pos.up())
+        if (seconds <= 0 || !world.isThundering() || !underStorm(world, pos)
                 || world.rand.nextInt(seconds) != 0) {
             return;
         }
@@ -91,6 +98,20 @@ public class BoltbloomBlockEntity extends TileEntityGeneratingFlower implements 
             spawningOwn = false;
         }
         struck(world);
+    }
+
+    /**
+     * Под открытым ли небом цветок. Парящие Молниецветы ставят столбиком -
+     * небо проверяем над верхним в столбике, иначе нижние никогда не позвали
+     * бы молнию. Каждый цветок по-прежнему зовёт её с обычной частотой и
+     * получает ману только за свою, так что выработка растёт линейно.
+     */
+    private static boolean underStorm(World world, BlockPos pos) {
+        BlockPos top = pos;
+        while (top.getY() < world.getHeight() - 1 && world.getTileEntity(top.up()) instanceof BoltbloomBlockEntity) {
+            top = top.up();
+        }
+        return world.isRainingAt(top.up());
     }
 
     private void struck(ServerWorld world) {
@@ -142,7 +163,7 @@ public class BoltbloomBlockEntity extends TileEntityGeneratingFlower implements 
             return java.util.Collections.singletonList(new net.minecraft.util.text.TranslationTextComponent("status.manaessencebridge.resting", (left + 19) / 20));
         }
         boolean storm = BridgeConfig.boltbloomSelfStrikeSeconds() > 0 && getWorld().isThundering()
-                && getWorld().isRainingAt(getEffectivePos().up());
+                && underStorm(getWorld(), getEffectivePos());
         return java.util.Collections.singletonList(storm ? new net.minecraft.util.text.TranslationTextComponent("status.manaessencebridge.storm") : new net.minecraft.util.text.TranslationTextComponent("status.manaessencebridge.wait_lightning"));
     }
 

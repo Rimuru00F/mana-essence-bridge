@@ -1,5 +1,7 @@
 package com.frostfirebloom.manaessencebridge;
 
+import net.minecraft.core.BlockPos;
+
 import java.util.UUID;
 
 /**
@@ -90,5 +92,37 @@ public class InferiumCatalystCapability {
 
     public void setBaseCapacity(int baseCapacity) {
         this.baseCapacity = Math.max(0, baseCapacity);
+    }
+
+    /**
+     * Сеть пулов: с какими пулами того же измерения этот связан (Зеркалом
+     * эссенции). Связь всегда двусторонняя; мана между ними выравнивается
+     * раз в секунду (PoolNetwork).
+     */
+    private final java.util.List<BlockPos> links = new java.util.ArrayList<>();
+
+    public java.util.List<BlockPos> getLinks() {
+        return java.util.Collections.unmodifiableList(links);
+    }
+
+    public boolean hasLink(BlockPos pos) {
+        return links.contains(pos);
+    }
+
+    public void addLink(BlockPos pos) {
+        if (!links.contains(pos)) {
+            links.add(pos.immutable());
+        }
+    }
+
+    public void removeLink(BlockPos pos) {
+        links.remove(pos);
+    }
+
+    public void setLinks(java.util.Collection<BlockPos> positions) {
+        links.clear();
+        for (BlockPos p : positions) {
+            addLink(p);
+        }
     }
 }

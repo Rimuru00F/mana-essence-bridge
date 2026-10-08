@@ -1,0 +1,16 @@
+{
+  "type": "botania:mana_infusion",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "input": {
+    "item": "mysticalagriculture:fertilized_essence"
+  },
+  "output": {
+    "item": "manaessencebridge:mana_fertilizer"
+  },
+  "mana": 45000
+}

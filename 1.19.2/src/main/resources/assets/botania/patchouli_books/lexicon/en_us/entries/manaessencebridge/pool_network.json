@@ -1,0 +1,16 @@
+{
+  "name": "manaessencebridge.entry.pool_network",
+  "category": "botania:manaessencebridge",
+  "icon": "manaessencebridge:essence_mirror",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.pool_network_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.pool_network_p2"
+    }
+  ]
+}

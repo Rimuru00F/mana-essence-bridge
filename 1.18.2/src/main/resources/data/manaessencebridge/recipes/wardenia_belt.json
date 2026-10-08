@@ -1,0 +1,33 @@
+{
+  "type": "botania:runic_altar",
+  "output": {
+    "item": "manaessencebridge:wardenia_belt"
+  },
+  "mana": 50000,
+  "ingredients": [
+    {
+      "item": "manaessencebridge:wardenia"
+    },
+    {
+      "item": "manaessencebridge:wardenia"
+    },
+    {
+      "item": "botania:rune_earth"
+    },
+    {
+      "item": "botania:rune_air"
+    },
+    {
+      "item": "botania:mana_diamond"
+    },
+    {
+      "item": "botania:manasteel_ingot"
+    },
+    {
+      "item": "botania:manasteel_ingot"
+    },
+    {
+      "item": "minecraft:leather"
+    }
+  ]
+}

@@ -33,6 +33,8 @@ public class LedgerPacket {
         /** Конденсатор, бравший ману в последнюю минуту: тир фильтра (0 - нет) и резерв. */
         public int condTier;
         public int condReserve;
+        /** Связи в сети пулов. */
+        public long[] links = new long[0];
 
         public Row(String dim, BlockPos pos, int tier, int mana, int maxMana, long processed, boolean pull, boolean live) {
             this.dim = dim;
@@ -61,6 +63,7 @@ public class LedgerPacket {
             Row row = new Row(e.dim, e.blockPos(), e.tier, e.mana, e.maxMana, e.processed, e.pull, e.live);
             row.hasRate = e.live && e.hasRate;
             row.rate = e.rate;
+            row.links = e.links;
             if (now - e.condTime <= PoolLedger.CONDENSER_FRESH) {
                 row.condTier = e.condTier;
                 row.condReserve = e.condReserve;
@@ -85,6 +88,11 @@ public class LedgerPacket {
             buffer.writeVarInt(r.rate);
             buffer.writeVarInt(r.condTier);
             buffer.writeVarInt(r.condReserve);
+            int n = Math.min(r.links.length, PoolNetwork.MAX_LINKS);
+            buffer.writeVarInt(n);
+            for (int i = 0; i < n; i++) {
+                buffer.writeLong(r.links[i]);
+            }
         }
     }
 
@@ -98,6 +106,10 @@ public class LedgerPacket {
             row.rate = buffer.readVarInt();
             row.condTier = buffer.readVarInt();
             row.condReserve = buffer.readVarInt();
+            row.links = new long[Math.min(buffer.readVarInt(), PoolNetwork.MAX_LINKS)];
+            for (int j = 0; j < row.links.length; j++) {
+                row.links[j] = buffer.readLong();
+            }
             rows.add(row);
         }
         return new LedgerPacket(rows);

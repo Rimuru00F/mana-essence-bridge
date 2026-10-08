@@ -34,6 +34,8 @@ public class BrookbellBlockEntity extends GeneratingFlowerBlockEntity implements
 
     public BrookbellBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.BROOKBELL_BE.get(), pos, state);
+        // парящий вариант: Botania после загрузки отмечает только свои парящие блоки
+        setFloating(FloatingManaFlowerBlock.isFloating(state));
     }
 
     @Override

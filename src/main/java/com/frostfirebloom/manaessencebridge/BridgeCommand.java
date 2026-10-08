@@ -39,15 +39,27 @@ public final class BridgeCommand {
     public static void register(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSource> dispatcher = event.getDispatcher();
         dispatcher.register(Commands.literal("manabridge")
-                .requires(source -> source.hasPermissionLevel(2))
+                // общие пулы: любой игрок даёт друзьям доступ к своим приватным пулам
+                .then(Commands.literal("trust")
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("player", GameProfileArgument.gameProfile())
+                                        .executes(ctx -> trust(ctx, true))))
+                        .then(Commands.literal("remove")
+                                .then(Commands.argument("player", GameProfileArgument.gameProfile())
+                                        .executes(ctx -> trust(ctx, false))))
+                        .then(Commands.literal("list")
+                                .executes(BridgeCommand::trustList)))
                 .then(Commands.literal("pools")
+                        .requires(source -> source.hasPermissionLevel(2))
                         .then(Commands.argument("player", GameProfileArgument.gameProfile())
                                 .executes(BridgeCommand::pools)))
                 .then(Commands.literal("settier")
+                        .requires(source -> source.hasPermissionLevel(2))
                         .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .then(Commands.argument("tier", IntegerArgumentType.integer(0, 6))
                                         .executes(BridgeCommand::setTier))))
                 .then(Commands.literal("setowner")
+                        .requires(source -> source.hasPermissionLevel(2))
                         .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                                         .executes(BridgeCommand::setOwner)))));
@@ -102,6 +114,45 @@ public final class BridgeCommand {
         }
         send(source, text("command.manaessencebridge.tier_set", TextFormatting.AQUA, pos.getX(), pos.getY(), pos.getZ(), tier));
         return 1;
+    }
+
+    /** /manabridge trust add|remove <игрок>: доступ к своим приватным пулам. */
+    private static int trust(CommandContext<CommandSource> ctx, boolean add) throws CommandSyntaxException {
+        CommandSource source = ctx.getSource();
+        net.minecraft.entity.player.ServerPlayerEntity self = source.asPlayer();
+        int changed = 0;
+        for (GameProfile profile : GameProfileArgument.getGameProfiles(ctx, "player")) {
+            if (profile.getId().equals(self.getUniqueID())) {
+                source.sendErrorMessage(new TranslationTextComponent("command.manaessencebridge.trust_self"));
+                continue;
+            }
+            PoolTrust.set(source.getServer(), self.getUniqueID(), profile.getId(), add);
+            changed++;
+            send(source, text(add ? "command.manaessencebridge.trust_added" : "command.manaessencebridge.trust_removed",
+                    add ? TextFormatting.AQUA : TextFormatting.GRAY, profile.getName()));
+        }
+        if (add && changed > 0 && !BridgeConfig.privatePools()) {
+            send(source, text("command.manaessencebridge.trust_not_private", TextFormatting.DARK_GRAY));
+        }
+        return changed;
+    }
+
+    /** /manabridge trust list: кому открыты твои пулы. */
+    private static int trustList(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        CommandSource source = ctx.getSource();
+        net.minecraft.entity.player.ServerPlayerEntity self = source.asPlayer();
+        java.util.Set<java.util.UUID> friends = PoolTrust.friendsOf(source.getServer(), self.getUniqueID());
+        if (friends.isEmpty()) {
+            send(source, text("command.manaessencebridge.trust_list_empty", TextFormatting.GRAY));
+            return 0;
+        }
+        java.util.List<String> names = new java.util.ArrayList<>();
+        for (java.util.UUID id : friends) {
+            GameProfile profile = source.getServer().getPlayerProfileCache().getProfileByUUID(id);
+            names.add(profile != null ? profile.getName() : id.toString());
+        }
+        send(source, text("command.manaessencebridge.trust_list", TextFormatting.AQUA, String.join(", ", names)));
+        return friends.size();
     }
 
     private static int setOwner(CommandContext<CommandSource> ctx) throws CommandSyntaxException {

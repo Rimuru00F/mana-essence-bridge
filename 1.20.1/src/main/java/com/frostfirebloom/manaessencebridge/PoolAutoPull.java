@@ -54,6 +54,12 @@ public class PoolAutoPull {
         TRACKED.computeIfAbsent(level.dimension(), k -> new HashSet<>()).add(pos.immutable());
     }
 
+    /** Загруженные прокачанные пулы этого измерения - их обходит и сеть пулов. */
+    static Set<BlockPos> tracked(Level level) {
+        Set<BlockPos> set = TRACKED.get(level.dimension());
+        return set == null ? java.util.Collections.emptySet() : new HashSet<>(set);
+    }
+
     public static void untrack(Level level, BlockPos pos) {
         if (level.isClientSide) {
             return;
@@ -201,11 +207,13 @@ public class PoolAutoPull {
                 if (stack.isEmpty()) {
                     continue;
                 }
-                EssenceTier tier = EssenceTier.fromItem(stack.getItem());
-                if (tier == null || !tier.isEnabled() || !cap.supports(tier)) {
+                // эссенция MA или предмет из курсов датапака (PoolExchange)
+                PoolExchange.Price price = PoolExchange.priceOf(stack);
+                if (price == null || !price.fits(cap)) {
                     continue;
                 }
-                int manaPer = tier.getManaPerEssence();
+                EssenceTier tier = price.look();
+                int manaPer = price.mana;
                 int want = Math.min(stack.getCount(), space / manaPer);
                 if (want <= 0) {
                     continue;

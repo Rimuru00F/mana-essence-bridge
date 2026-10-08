@@ -1,5 +1,7 @@
 package com.frostfirebloom.manaessencebridge.client;
 
+import net.minecraft.ChatFormatting;
+
 import com.frostfirebloom.manaessencebridge.CatalystItem;
 import com.frostfirebloom.manaessencebridge.EssenceTier;
 import com.frostfirebloom.manaessencebridge.LedgerPacket;
@@ -37,6 +39,8 @@ public class LedgerScreen extends Screen {
     private static final int BAR_BG = 0xFF0A1220;
     private static final int TEXT = 0xFFE8E2C8;
     private static final int TEXT_DIM = 0xFF8FA3C0;
+    /** Сеть пулов: подпись и рамка связанных карточек. */
+    private static final int LINK_COLOR = 0xFF7FE0FF;
     private static final String[] ARROWS = {"↑", "↗", "→", "↘", "↓", "↙", "←", "↖"};
 
     private final List<LedgerPacket.Row> rows;
@@ -156,6 +160,7 @@ public class LedgerScreen extends Screen {
 
         int maxScroll = Math.max(0, rows.size() - visible);
         scroll = Mth.clamp(scroll, 0, maxScroll);
+        LedgerPacket.Row hovered = null;
         for (int i = 0; i < visible && scroll + i < rows.size(); i++) {
             LedgerPacket.Row r = rows.get(scroll + i);
             int x = left + 6;
@@ -163,6 +168,18 @@ public class LedgerScreen extends Screen {
             int w = PANEL_W - 18;
             boolean hover = mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + CARD_H - 4;
             drawCard(pose, r, x, y, w, hover);
+            if (hover) {
+                hovered = r;
+            }
+        }
+        // сеть пулов: при наведении подсвечиваем карточки связанных пулов
+        if (hovered != null && hovered.links.length > 0) {
+            for (int i = 0; i < visible && scroll + i < rows.size(); i++) {
+                LedgerPacket.Row r = rows.get(scroll + i);
+                if (r != hovered && r.dim.equals(hovered.dim) && linked(hovered, r)) {
+                    outline(pose, left + 6, top + HEADER_H + i * CARD_H, PANEL_W - 18, CARD_H - 4);
+                }
+            }
         }
         if (maxScroll > 0) {
             int trackTop = top + HEADER_H;
@@ -173,6 +190,9 @@ public class LedgerScreen extends Screen {
             fill(pose, left + PANEL_W - 9, thumbY, left + PANEL_W - 5, thumbY + thumbH, BORDER);
         }
         super.render(pose, mouseX, mouseY, partialTick);
+        if (hovered != null && hovered.links.length > 0) {
+            renderComponentTooltip(pose, networkLines(hovered), mouseX, mouseY);
+        }
     }
 
     private void drawCard(PoseStack pose, LedgerPacket.Row r, int x, int y, int w, boolean hover) {
@@ -234,6 +254,46 @@ public class LedgerScreen extends Screen {
                     : r.condReserve + "%";
             font.draw(pose, Component.translatable("gui.manaessencebridge.ledger.condenser", condTier.getDisplayName(), reserve), x + 28, y + 49, TEXT_DIM);
         }
+        if (r.links.length > 0) {
+            String net = Component.translatable("gui.manaessencebridge.ledger.links", r.links.length).getString();
+            font.draw(pose, net, x + w - 6 - font.width(net), y + 49, LINK_COLOR);
+        }
+    }
+
+    private static boolean linked(LedgerPacket.Row a, LedgerPacket.Row b) {
+        long packed = b.pos.asLong();
+        for (long l : a.links) {
+            if (l == packed) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void outline(PoseStack pose, int x, int y, int w, int h) {
+        fill(pose, x - 1, y - 1, x + w + 1, y, LINK_COLOR);
+        fill(pose, x - 1, y + h, x + w + 1, y + h + 1, LINK_COLOR);
+        fill(pose, x - 1, y, x, y + h, LINK_COLOR);
+        fill(pose, x + w, y, x + w + 1, y + h, LINK_COLOR);
+    }
+
+    /** Подсказка: связи пула с заполненностью тех, что есть в гроссбухе. */
+    private java.util.List<Component> networkLines(LedgerPacket.Row row) {
+        java.util.List<Component> lines = new java.util.ArrayList<>();
+        lines.add(Component.translatable("gui.manaessencebridge.ledger.network", row.links.length).withStyle(ChatFormatting.AQUA));
+        for (long packed : row.links) {
+            net.minecraft.core.BlockPos p = net.minecraft.core.BlockPos.of(packed);
+            String fill = "?";
+            for (LedgerPacket.Row r : rows) {
+                if (r.dim.equals(row.dim) && r.pos.equals(p) && r.maxMana > 0) {
+                    fill = (int) Math.round(100.0 * r.mana / r.maxMana) + "%";
+                    break;
+                }
+            }
+            lines.add(Component.translatable("gui.manaessencebridge.ledger.network_line", p.getX(), p.getY(), p.getZ(), fill)
+                    .withStyle(ChatFormatting.GRAY));
+        }
+        return lines;
     }
 
     @Override

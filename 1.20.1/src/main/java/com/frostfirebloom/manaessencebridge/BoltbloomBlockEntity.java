@@ -46,6 +46,8 @@ public class BoltbloomBlockEntity extends GeneratingFlowerBlockEntity implements
 
     public BoltbloomBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.BOLTBLOOM_BE.get(), pos, state);
+        // парящий вариант: Botania после загрузки отмечает только свои парящие блоки
+        setFloating(FloatingManaFlowerBlock.isFloating(state));
     }
 
     @Override
@@ -77,7 +79,7 @@ public class BoltbloomBlockEntity extends GeneratingFlowerBlockEntity implements
     private void trySelfStrike(ServerLevel level) {
         int seconds = BridgeConfig.boltbloomSelfStrikeSeconds();
         BlockPos pos = getEffectivePos();
-        if (seconds <= 0 || !level.isThundering() || !level.isRainingAt(pos.above())
+        if (seconds <= 0 || !level.isThundering() || !underStorm(level, pos)
                 || level.random.nextInt(seconds) != 0) {
             return;
         }
@@ -94,6 +96,20 @@ public class BoltbloomBlockEntity extends GeneratingFlowerBlockEntity implements
             spawningOwn = false;
         }
         struck(level);
+    }
+
+    /**
+     * Под открытым ли небом цветок. Парящие Молниецветы ставят столбиком -
+     * небо проверяем над верхним в столбике, иначе нижние никогда не позвали
+     * бы молнию. Каждый цветок по-прежнему зовёт её с обычной частотой и
+     * получает ману только за свою, так что выработка растёт линейно.
+     */
+    private static boolean underStorm(Level level, BlockPos pos) {
+        BlockPos top = pos;
+        while (top.getY() < level.getMaxBuildHeight() - 1 && level.getBlockEntity(top.above()) instanceof BoltbloomBlockEntity) {
+            top = top.above();
+        }
+        return level.isRainingAt(top.above());
     }
 
     private void struck(ServerLevel level) {
@@ -145,7 +161,7 @@ public class BoltbloomBlockEntity extends GeneratingFlowerBlockEntity implements
             return java.util.Collections.singletonList(Component.translatable("status.manaessencebridge.resting", (left + 19) / 20));
         }
         boolean storm = BridgeConfig.boltbloomSelfStrikeSeconds() > 0 && getLevel().isThundering()
-                && getLevel().isRainingAt(getEffectivePos().above());
+                && underStorm(getLevel(), getEffectivePos());
         return java.util.Collections.singletonList(storm ? Component.translatable("status.manaessencebridge.storm") : Component.translatable("status.manaessencebridge.wait_lightning"));
     }
 

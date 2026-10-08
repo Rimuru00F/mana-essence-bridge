@@ -1,0 +1,42 @@
+{
+  "type": "botania:runic_altar",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagradditions"
+    }
+  ],
+  "output": {
+    "item": "manaessencebridge:insanium_mana_catalyst"
+  },
+  "mana": 1000000,
+  "ingredients": [
+    {
+      "item": "manaessencebridge:supremium_mana_catalyst"
+    },
+    {
+      "item": "mysticalagradditions:insanium_essence"
+    },
+    {
+      "item": "mysticalagradditions:insanium_essence"
+    },
+    {
+      "item": "mysticalagradditions:insanium_essence"
+    },
+    {
+      "item": "mysticalagradditions:insanium_essence"
+    },
+    {
+      "item": "botania:gaia_ingot"
+    },
+    {
+      "item": "botania:gaia_ingot"
+    },
+    {
+      "item": "botania:rune_pride"
+    },
+    {
+      "item": "botania:rune_envy"
+    }
+  ]
+}

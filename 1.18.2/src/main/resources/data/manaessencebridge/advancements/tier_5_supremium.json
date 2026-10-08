@@ -1,0 +1,32 @@
+{
+  "parent": "manaessencebridge:tier_4_imperium",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:supremium_mana_catalyst"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.tier_5_supremium.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.tier_5_supremium.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_catalyst": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "manaessencebridge:supremium_mana_catalyst"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

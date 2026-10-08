@@ -23,6 +23,13 @@ public class ReaperbloomBlockEntity extends TileEntityFunctionalFlower {
         super(ModBlocks.REAPERBLOOM_BE.get());
     }
 
+    /** Парящий вариант: Botania после загрузки отмечает только свои парящие блоки. */
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        setFloating(FloatingManaFlowerBlock.isFloating(getBlockState()));
+    }
+
     /** Цена одного сбора, привязана к курсу эссенции. */
     public static int costPerHarvest() {
         return (int) Math.min(Integer.MAX_VALUE, (long) BridgeConfig.manaPerInferium() * 3 / 20);

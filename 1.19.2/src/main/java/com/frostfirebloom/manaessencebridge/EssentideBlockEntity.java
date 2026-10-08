@@ -40,6 +40,8 @@ public class EssentideBlockEntity extends GeneratingFlowerBlockEntity implements
 
     public EssentideBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.ESSENTIDE_BE.get(), pos, state);
+        // парящий вариант: Botania после загрузки отмечает только свои парящие блоки
+        setFloating(FloatingManaFlowerBlock.isFloating(state));
     }
 
     /** Тир культуры ресурсной эссенции MA; 0 - Эссентида такое не ест. */

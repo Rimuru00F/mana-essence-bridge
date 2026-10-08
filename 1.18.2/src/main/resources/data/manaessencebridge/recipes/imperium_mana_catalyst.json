@@ -1,0 +1,37 @@
+{
+  "type": "botania:elven_trade",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "ingredients": [
+    {
+      "item": "manaessencebridge:tertium_mana_catalyst"
+    },
+    {
+      "item": "mysticalagriculture:imperium_essence"
+    },
+    {
+      "item": "mysticalagriculture:imperium_essence"
+    },
+    {
+      "item": "mysticalagriculture:imperium_essence"
+    },
+    {
+      "item": "mysticalagriculture:imperium_essence"
+    },
+    {
+      "item": "botania:elementium_ingot"
+    },
+    {
+      "item": "botania:elementium_ingot"
+    }
+  ],
+  "output": [
+    {
+      "item": "manaessencebridge:imperium_mana_catalyst"
+    }
+  ]
+}

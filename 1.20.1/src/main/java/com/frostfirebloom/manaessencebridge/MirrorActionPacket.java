@@ -13,35 +13,39 @@ import java.util.function.Supplier;
  */
 public class MirrorActionPacket {
 
-    public static final int BUY_ONE = 0;
-    public static final int BUY_STACK = 1;
+    public static final int BUY = 0;
+    public static final int SELL = 1;
     public static final int SEND_ALL = 2;
 
     private final int hand;
     private final int action;
     private final int tier;
+    /** Сколько купить или продать - выбор в окне, сервер всё равно ограничивает. */
+    private final int count;
 
-    public MirrorActionPacket(int hand, int action, int tier) {
+    public MirrorActionPacket(int hand, int action, int tier, int count) {
         this.hand = hand;
         this.action = action;
         this.tier = tier;
+        this.count = count;
     }
 
     public static void encode(MirrorActionPacket p, FriendlyByteBuf buf) {
         buf.writeVarInt(p.hand);
         buf.writeVarInt(p.action);
         buf.writeVarInt(p.tier);
+        buf.writeVarInt(p.count);
     }
 
     public static MirrorActionPacket decode(FriendlyByteBuf buf) {
-        return new MirrorActionPacket(buf.readVarInt(), buf.readVarInt(), buf.readVarInt());
+        return new MirrorActionPacket(buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readVarInt());
     }
 
     public static void handle(MirrorActionPacket packet, Supplier<NetworkEvent.Context> context) {
         NetworkEvent.Context ctx = context.get();
         ServerPlayer player = ctx.getSender();
         if (player != null) {
-            ctx.enqueueWork(() -> EssenceMirrorItem.handleAction(player, packet.hand, packet.action, packet.tier));
+            ctx.enqueueWork(() -> EssenceMirrorItem.handleAction(player, packet.hand, packet.action, packet.tier, packet.count));
         }
         ctx.setPacketHandled(true);
     }

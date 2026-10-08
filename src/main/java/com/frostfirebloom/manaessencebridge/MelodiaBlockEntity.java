@@ -45,6 +45,13 @@ public class MelodiaBlockEntity extends TileEntityGeneratingFlower implements Fl
         Arrays.fill(history, -1);
     }
 
+    /** Парящий вариант: Botania после загрузки отмечает только свои парящие блоки. */
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        setFloating(FloatingManaFlowerBlock.isFloating(getBlockState()));
+    }
+
     @Override
     public void tickFlower() {
         super.tickFlower();

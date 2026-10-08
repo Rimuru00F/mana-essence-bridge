@@ -21,6 +21,8 @@ public class ReaperbloomBlockEntity extends FunctionalFlowerBlockEntity {
 
     public ReaperbloomBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.REAPERBLOOM_BE.get(), pos, state);
+        // парящий вариант: Botania после загрузки отмечает только свои парящие блоки
+        setFloating(FloatingManaFlowerBlock.isFloating(state));
     }
 
     /** Цена одного сбора, привязана к курсу эссенции. */

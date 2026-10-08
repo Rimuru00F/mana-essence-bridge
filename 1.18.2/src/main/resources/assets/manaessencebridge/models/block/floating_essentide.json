@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/block",
+  "loader": "botania:floating_flower",
+  "flower": {
+    "parent": "botania:block/shapes/cross",
+    "textures": {
+      "cross": "manaessencebridge:block/essentide"
+    },
+    "render_type": "minecraft:cutout"
+  }
+}

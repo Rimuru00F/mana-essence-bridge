@@ -47,11 +47,14 @@ public class BirthdayCakeItem extends BlockItem {
 
     /** Кусок торта, стоящего на cakePos, съеден. */
     public static void celebrate(ServerPlayer player, BlockPos cakePos) {
-        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 60, 1));
-        player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 20 * 120, 1));
-        player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 20 * 300, 1));
-        player.addEffect(new MobEffectInstance(MobEffects.LUCK, 20 * 600, 0));
-        player.addEffect(new MobEffectInstance(ModEffects.BIRTHDAY_CHEER.get(), 20 * 600, 0));
+        // Съел несколько кусков подряд - время эффектов складывается
+        extend(player, MobEffects.REGENERATION, 20 * 60, 1);
+        extend(player, MobEffects.ABSORPTION, 20 * 120, 1);
+        extend(player, MobEffects.DIG_SPEED, 20 * 300, 1);
+        extend(player, MobEffects.LUCK, 20 * 600, 0);
+        extend(player, ModEffects.BIRTHDAY_CHEER.get(), 20 * 600, 0);
+        // Кусок сытнее ванильного: ещё 2 единицы голода и побольше насыщения
+        player.getFoodData().eat(2, 0.5F);
 
         ServerLevel server = player.serverLevel();
         int[] filled = fillPools(server, cakePos, MANA_PER_SLICE);
@@ -126,5 +129,19 @@ public class BirthdayCakeItem extends BlockItem {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.manaessencebridge.birthday_cake").withStyle(ChatFormatting.LIGHT_PURPLE));
         tooltip.add(Component.translatable("tooltip.manaessencebridge.birthday_cake_what").withStyle(ChatFormatting.GRAY));
+    }
+
+    /**
+     * Эффект на duration тиков поверх уже идущего такого же: остаток
+     * прибавляется, но не больше целого торта (7 кусков). Более сильный чужой
+     * эффект (например, Спешка III от маяка) не трогаем.
+     */
+    private static void extend(ServerPlayer player, net.minecraft.world.effect.MobEffect effect, int duration, int amplifier) {
+        MobEffectInstance current = player.getEffect(effect);
+        int total = duration;
+        if (current != null && current.getAmplifier() <= amplifier) {
+            total = Math.min(duration * 7, duration + current.getDuration());
+        }
+        player.addEffect(new MobEffectInstance(effect, total, amplifier));
     }
 }

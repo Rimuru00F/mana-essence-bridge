@@ -1,0 +1,26 @@
+{
+  "type": "botania:petal_apothecary",
+  "output": {
+    "item": "manaessencebridge:melodia"
+  },
+  "ingredients": [
+    {
+      "tag": "botania:petals/magenta"
+    },
+    {
+      "tag": "botania:petals/pink"
+    },
+    {
+      "tag": "botania:petals/yellow"
+    },
+    {
+      "tag": "botania:petals/white"
+    },
+    {
+      "item": "botania:rune_air"
+    },
+    {
+      "item": "minecraft:note_block"
+    }
+  ]
+}

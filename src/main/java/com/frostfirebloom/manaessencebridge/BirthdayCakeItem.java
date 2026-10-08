@@ -49,11 +49,14 @@ public class BirthdayCakeItem extends BlockItem {
 
     /** Кусок торта, стоящего на cakePos, съеден. */
     public static void celebrate(ServerPlayerEntity player, BlockPos cakePos) {
-        player.addPotionEffect(new EffectInstance(Effects.REGENERATION, 20 * 60, 1));
-        player.addPotionEffect(new EffectInstance(Effects.ABSORPTION, 20 * 120, 1));
-        player.addPotionEffect(new EffectInstance(Effects.HASTE, 20 * 300, 1));
-        player.addPotionEffect(new EffectInstance(Effects.LUCK, 20 * 600, 0));
-        player.addPotionEffect(new EffectInstance(ModEffects.BIRTHDAY_CHEER.get(), 20 * 600, 0));
+        // Съел несколько кусков подряд - время эффектов складывается
+        extend(player, Effects.REGENERATION, 20 * 60, 1);
+        extend(player, Effects.ABSORPTION, 20 * 120, 1);
+        extend(player, Effects.HASTE, 20 * 300, 1);
+        extend(player, Effects.LUCK, 20 * 600, 0);
+        extend(player, ModEffects.BIRTHDAY_CHEER.get(), 20 * 600, 0);
+        // Кусок сытнее ванильного: ещё 2 единицы голода и побольше насыщения
+        player.getFoodStats().addStats(2, 0.5F);
 
         ServerWorld server = player.getServerWorld();
         int[] filled = fillPools(server, cakePos, MANA_PER_SLICE);
@@ -128,5 +131,19 @@ public class BirthdayCakeItem extends BlockItem {
     public void addInformation(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
         tooltip.add(new TranslationTextComponent("tooltip.manaessencebridge.birthday_cake").mergeStyle(TextFormatting.LIGHT_PURPLE));
         tooltip.add(new TranslationTextComponent("tooltip.manaessencebridge.birthday_cake_what").mergeStyle(TextFormatting.GRAY));
+    }
+
+    /**
+     * Эффект на duration тиков поверх уже идущего такого же: остаток
+     * прибавляется, но не больше целого торта (7 кусков). Более сильный чужой
+     * эффект (например, Спешка III от маяка) не трогаем.
+     */
+    private static void extend(ServerPlayerEntity player, net.minecraft.potion.Effect effect, int duration, int amplifier) {
+        EffectInstance current = player.getActivePotionEffect(effect);
+        int total = duration;
+        if (current != null && current.getAmplifier() <= amplifier) {
+            total = Math.min(duration * 7, duration + current.getDuration());
+        }
+        player.addPotionEffect(new EffectInstance(effect, total, amplifier));
     }
 }

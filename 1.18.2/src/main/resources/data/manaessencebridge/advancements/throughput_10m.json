@@ -1,0 +1,23 @@
+{
+  "parent": "manaessencebridge:throughput_1m",
+  "display": {
+    "icon": {
+      "item": "mysticalagriculture:supremium_essence"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.throughput_10m.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.throughput_10m.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "reached": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

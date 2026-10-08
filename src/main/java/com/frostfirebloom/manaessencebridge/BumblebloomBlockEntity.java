@@ -13,7 +13,8 @@ import vazkii.botania.api.subtile.TileEntityGeneratingFlower;
 
 /**
  * Пчелоцвет: пчёлы опыляют его как обычный цветок (он в теге
- * minecraft:small_flowers), и за каждое опыление цветок даёт 400 маны.
+ * minecraft:flowers, вместе с парящим вариантом), и за каждое опыление
+ * цветок даёт 400 маны.
  *
  * Опыление засчитывается, когда пчела, выбравшая этот цветок, набрала нектар;
  * метка на пчеле не даёт засчитать один нектар дважды и снимается, когда
@@ -66,6 +67,13 @@ public class BumblebloomBlockEntity extends TileEntityGeneratingFlower implement
             ((ServerWorld) world).spawnParticle(ParticleTypes.FALLING_NECTAR,
                     self.getX() + 0.5, self.getY() + 0.6, self.getZ() + 0.5, 8, 0.25, 0.2, 0.25, 0.0);
         }
+    }
+
+    /** Парящий вариант: Botania после загрузки отмечает только свои парящие блоки. */
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        setFloating(FloatingManaFlowerBlock.isFloating(getBlockState()));
     }
 
     @Override

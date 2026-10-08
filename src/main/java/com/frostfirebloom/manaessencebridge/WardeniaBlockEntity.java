@@ -32,6 +32,11 @@ public class WardeniaBlockEntity extends TileEntityFunctionalFlower implements F
     private static final int SHIELD_HEIGHT = 6;
     /** Зона для мобов: на столько блоков вниз и вверх от цветка. */
     private static final int ZONE_BELOW = 2;
+    /**
+     * Парящую Стражению вешают над домом или фермой - она охраняет на
+     * столько блоков вниз: мобов, снаряды, пашню (а взрывы - вдвое глубже).
+     */
+    private static final int FLOATING_BELOW = 16;
     private static final int ZONE_ABOVE = 6;
     private static final int MAX_MOISTURE = 7;
     private static final int MAX_MANA = 1000;
@@ -39,6 +44,18 @@ public class WardeniaBlockEntity extends TileEntityFunctionalFlower implements F
 
     public WardeniaBlockEntity() {
         super(ModBlocks.WARDENIA_BE.get());
+    }
+
+    /** Парящий вариант: Botania после загрузки отмечает только свои парящие блоки. */
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        setFloating(FloatingManaFlowerBlock.isFloating(getBlockState()));
+    }
+
+    /** Сколько блоков вниз охраняет цветок: парящий - глубже. */
+    private int below() {
+        return isFloating() ? FLOATING_BELOW : ZONE_BELOW;
     }
 
     @Override
@@ -63,7 +80,7 @@ public class WardeniaBlockEntity extends TileEntityFunctionalFlower implements F
 
     private void moisten(ServerWorld world) {
         BlockPos center = getEffectivePos();
-        for (BlockPos pos : BlockPos.getAllInBoxMutable(center.add(-RANGE, -2, -RANGE), center.add(RANGE, 1, RANGE))) {
+        for (BlockPos pos : BlockPos.getAllInBoxMutable(center.add(-RANGE, -below(), -RANGE), center.add(RANGE, 1, RANGE))) {
             if (getMana() < BridgeConfig.wardeniaMoistenCost()) {
                 return;
             }
@@ -84,7 +101,8 @@ public class WardeniaBlockEntity extends TileEntityFunctionalFlower implements F
         BlockPos center = getEffectivePos();
         for (net.minecraft.entity.projectile.ProjectileEntity shot : world.getEntitiesWithinAABB(
                 net.minecraft.entity.projectile.ProjectileEntity.class,
-                new AxisAlignedBB(center).grow(RANGE, SHIELD_HEIGHT, RANGE),
+                new AxisAlignedBB(center.getX() - RANGE, center.getY() - Math.max(SHIELD_HEIGHT, below()), center.getZ() - RANGE,
+                        center.getX() + RANGE + 1, center.getY() + SHIELD_HEIGHT + 1, center.getZ() + RANGE + 1),
                 e -> e.isAlive() && e.getShooter() instanceof IMob)) {
             if (getMana() < cost) {
                 return;
@@ -105,7 +123,7 @@ public class WardeniaBlockEntity extends TileEntityFunctionalFlower implements F
     private void pushMobs(ServerWorld world) {
         BlockPos center = getEffectivePos();
         Vector3d middle = Vector3d.copyCentered(center);
-        AxisAlignedBB zone = new AxisAlignedBB(center.getX() - RANGE, center.getY() - ZONE_BELOW, center.getZ() - RANGE,
+        AxisAlignedBB zone = new AxisAlignedBB(center.getX() - RANGE, center.getY() - below(), center.getZ() - RANGE,
                 center.getX() + RANGE + 1, center.getY() + ZONE_ABOVE + 1, center.getZ() + RANGE + 1);
         for (LivingEntity mob : world.getEntitiesWithinAABB(LivingEntity.class, zone, e -> e instanceof IMob && e.isAlive())) {
             if (getMana() < BridgeConfig.wardeniaPushCost()) {
@@ -120,8 +138,14 @@ public class WardeniaBlockEntity extends TileEntityFunctionalFlower implements F
                 far = 1;
             }
             // точка за границей квадрата по направлению от цветка
-            double scale = (RANGE + 1.5) / far;
-            Vector3d target = new Vector3d(middle.x + dx * scale, mob.getPosY(), middle.z + dz * scale);
+            double reach = RANGE + 1.5;
+            Vector3d target = new Vector3d(middle.x + dx * reach / far, mob.getPosY(), middle.z + dz * reach / far);
+            // Соседние Стражении: выдворяем за край всей охраняемой площади -
+            // иначе соседняя вернула бы моба обратно, и он болтался бы туда-сюда.
+            for (int step = 0; step < 48 && guardedSpot(world, target.x, target.y, target.z); step++) {
+                reach += 1;
+                target = new Vector3d(middle.x + dx * reach / far, mob.getPosY(), middle.z + dz * reach / far);
+            }
             Vector3d shift = target.subtract(mob.getPositionVec());
             world.spawnParticle(ParticleTypes.CLOUD, mob.getPosX(), mob.getPosY() + 0.5, mob.getPosZ(), 4, 0.2, 0.2, 0.2, 0.01);
             if (world.hasNoCollisions(mob, mob.getBoundingBox().offset(shift))) {
@@ -137,18 +161,38 @@ public class WardeniaBlockEntity extends TileEntityFunctionalFlower implements F
         }
     }
 
-    /** Есть ли рядом с этой пашней Стражения с маной и без сигнала редстоуна. */
+    /** Точка в зоне выдворения мобов: квадрат 9x9, от -below() до +6 по высоте. */
+    private boolean inMobZone(double x, double y, double z) {
+        BlockPos c = getEffectivePos();
+        return Math.abs(x - (c.getX() + 0.5)) <= RANGE + 0.5 && Math.abs(z - (c.getZ() + 0.5)) <= RANGE + 0.5
+                && y >= c.getY() - below() && y < c.getY() + ZONE_ABOVE + 1;
+    }
+
+    /** Охраняет ли эту точку какая-нибудь работающая Стражения этого мира. */
+    private static boolean guardedSpot(World level, double x, double y, double z) {
+        for (WardeniaBlockEntity flower : new java.util.ArrayList<>(LOADED)) {
+            if (!flower.isRemoved() && flower.getWorld() == level && flower.redstoneSignal == 0
+                    && flower.getMana() >= BridgeConfig.wardeniaPushCost() && flower.inMobZone(x, y, z)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Есть ли у этой пашни Стражения с маной и без сигнала редстоуна: в
+     * квадрате 9x9, на пашне не выше блока над цветком и не ниже зоны цветка
+     * (у парящей - на 16 блоков вниз). Ищем среди загруженных цветков.
+     */
     private static boolean guarded(IWorld world, BlockPos farmland) {
-        for (BlockPos pos : BlockPos.getAllInBoxMutable(farmland.add(-RANGE, -1, -RANGE), farmland.add(RANGE, 2, RANGE))) {
-            if (!world.isBlockLoaded(pos)) {
+        for (WardeniaBlockEntity flower : new java.util.ArrayList<>(LOADED)) {
+            if (flower.isRemoved() || flower.getWorld() != world || flower.redstoneSignal != 0 || flower.getMana() <= 0) {
                 continue;
             }
-            TileEntity te = world.getTileEntity(pos);
-            if (te instanceof WardeniaBlockEntity) {
-                WardeniaBlockEntity flower = (WardeniaBlockEntity) te;
-                if (flower.redstoneSignal == 0 && flower.getMana() > 0) {
-                    return true;
-                }
+            BlockPos c = flower.getEffectivePos();
+            if (Math.abs(farmland.getX() - c.getX()) <= RANGE && Math.abs(farmland.getZ() - c.getZ()) <= RANGE
+                    && farmland.getY() >= c.getY() - flower.below() && farmland.getY() <= c.getY() + 1) {
+                return true;
             }
         }
         return false;
@@ -177,16 +221,15 @@ public class WardeniaBlockEntity extends TileEntityFunctionalFlower implements F
         LOADED.remove(this);
     }
 
-    /** Зона гашения взрывов вдвое больше зоны для мобов: 17x17, от -4 до +12 по высоте. */
+    /** Зона гашения взрывов вдвое больше зоны для мобов: 17x17, от -4 (у парящей -32) до +12 по высоте. */
     private static final int BLAST_RANGE = RANGE * 2;
-    private static final int BLAST_BELOW = ZONE_BELOW * 2;
     private static final int BLAST_ABOVE = ZONE_ABOVE * 2;
 
     /** Точка внутри зоны гашения взрывов. */
     private boolean inZone(double x, double y, double z) {
         BlockPos c = getEffectivePos();
         return Math.abs(x - (c.getX() + 0.5)) <= BLAST_RANGE + 0.5 && Math.abs(z - (c.getZ() + 0.5)) <= BLAST_RANGE + 0.5
-                && y >= c.getY() - BLAST_BELOW && y <= c.getY() + BLAST_ABOVE + 1;
+                && y >= c.getY() - below() * 2 && y <= c.getY() + BLAST_ABOVE + 1;
     }
 
     private boolean canGuard(World world) {
@@ -239,7 +282,11 @@ public class WardeniaBlockEntity extends TileEntityFunctionalFlower implements F
 
     @Override
     public int getMaxMana() {
-        return MAX_MANA;
+        // Запас растёт под настройки - иначе дорогой щит от взрыва в конфиге
+        // никогда не накопился бы и цветок молча перестал бы работать.
+        int costliest = Math.max(BridgeConfig.wardeniaExplosionCost(),
+                Math.max(BridgeConfig.wardeniaPushCost(), BridgeConfig.wardeniaProjectileCost()));
+        return Math.max(MAX_MANA, costliest * 2);
     }
 
     @Override

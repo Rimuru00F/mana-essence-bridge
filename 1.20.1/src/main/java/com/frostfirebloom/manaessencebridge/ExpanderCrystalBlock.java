@@ -32,7 +32,7 @@ import java.util.Set;
 public class ExpanderCrystalBlock extends Block {
 
     /** Сколько кристаллов обходим, разыскивая пулы рядом с группой. */
-    private static final int SEARCH_LIMIT = 64;
+    private static final int SEARCH_LIMIT = 128;
 
     public ExpanderCrystalBlock() {
         super(BlockBehaviour.Properties.of()
@@ -65,7 +65,8 @@ public class ExpanderCrystalBlock extends Block {
         ArrayDeque<BlockPos> queue = new ArrayDeque<>();
         seen.add(pos);
         queue.add(pos);
-        while (!queue.isEmpty() && seen.size() < SEARCH_LIMIT) {
+        int crystals = 0;
+        while (!queue.isEmpty() && crystals < SEARCH_LIMIT) {
             BlockPos at = queue.poll();
             for (Direction dir : Direction.values()) {
                 BlockPos next = at.relative(dir);
@@ -74,6 +75,7 @@ public class ExpanderCrystalBlock extends Block {
                 }
                 if (level.getBlockState(next).is(ModBlocks.EXPANDER_CRYSTAL.get())) {
                     queue.add(next);
+                    crystals++;
                 } else if (level.getBlockEntity(next) instanceof ManaPool) {
                     pools.add(next);
                 }

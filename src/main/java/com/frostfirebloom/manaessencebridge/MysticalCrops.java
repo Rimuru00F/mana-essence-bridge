@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 final class MysticalCrops {
 
     private static final String MA = "mysticalagriculture";
+    /** Mystical Agradditions: культуры шестого тира - те же культуры MA. */
+    private static final String AGRADDITIONS = "mysticalagradditions";
 
     /** Тир культуры по предмету ресурсной эссенции; 0 - не ресурсная эссенция MA. */
     private static final Map<Item, Integer> RESOURCE_TIERS = new ConcurrentHashMap<>();
@@ -36,7 +38,7 @@ final class MysticalCrops {
             return false;
         }
         ResourceLocation id = block.getRegistryName();
-        return id != null && MA.equals(id.getNamespace());
+        return id != null && (MA.equals(id.getNamespace()) || AGRADDITIONS.equals(id.getNamespace()));
     }
 
     static boolean isGrowing(BlockState state) {
@@ -155,5 +157,20 @@ final class MysticalCrops {
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
             return 0;
         }
+    }
+
+    /** Подрастить культуру MA на stages стадий, не выше спелой; true - подросла. */
+    static boolean advance(net.minecraft.world.World world, BlockPos pos, BlockState state, int stages) {
+        // По правилам MA: культуре может быть нужен крукс под ней или свой биом -
+        // MA проверяет это в isValidBonemealTarget/canGrow, как и для Мистикарнации.
+        if (!isCrop(state)) {
+            return false;
+        }
+        CropsBlock crop = (CropsBlock) state.getBlock();
+        if (!isGrowing(state) || !crop.canGrow(world, pos, state, false)) {
+            return false;
+        }
+        int age = Math.min(crop.getMaxAge(), state.get(crop.getAgeProperty()) + stages);
+        return world.setBlockState(pos, crop.withAge(age), 2);
     }
 }

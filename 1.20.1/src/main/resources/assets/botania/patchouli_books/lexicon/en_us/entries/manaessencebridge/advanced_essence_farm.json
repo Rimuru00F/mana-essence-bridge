@@ -1,0 +1,89 @@
+{
+  "name": "manaessencebridge.entry.advanced_essence_farm",
+  "category": "botania:manaessencebridge",
+  "icon": "manaessencebridge:floating_reaperbloom",
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.advanced_essence_farm_p1"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "flag": "mod:mysticalagriculture",
+      "multiblock": {
+        "mapping": {
+          "C": "mysticalagriculture:inferium_crop[age=7]",
+          "F": "minecraft:farmland[moisture=7]",
+          "M": "manaessencebridge:floating_mysticarnation",
+          "0": "manaessencebridge:floating_wardenia",
+          "R": "manaessencebridge:floating_reaperbloom",
+          "H": "botania:floating_hopperhock",
+          "X": "minecraft:chest",
+          "P": "botania:mana_pool",
+          "G": "minecraft:grass_block"
+        },
+        "pattern": [
+          [
+            "_________",
+            "_________",
+            "_________",
+            "_________",
+            "_________",
+            "____X____",
+            "_________",
+            "_________",
+            "_________",
+            "_________"
+          ],
+          [
+            "_________",
+            "_________",
+            "__M___M__",
+            "____R____",
+            "____0____",
+            "____H____",
+            "__M___M__",
+            "_________",
+            "_________",
+            "_________"
+          ],
+          [
+            "CCCCCCCCC",
+            "CCCCCCCCC",
+            "CCCCCCCCC",
+            "CCCCCCCCC",
+            "CCCCCCCCC",
+            "CCCCCCCCC",
+            "CCCCCCCCC",
+            "CCCCCCCCC",
+            "CCCCCCCCC",
+            "____P____"
+          ],
+          [
+            "FFFFFFFFF",
+            "FFFFFFFFF",
+            "FFFFFFFFF",
+            "FFFFFFFFF",
+            "FFFFFFFFF",
+            "FFFFFFFFF",
+            "FFFFFFFFF",
+            "FFFFFFFFF",
+            "FFFFFFFFF",
+            "____G____"
+          ]
+        ]
+      },
+      "enable_visualize": true,
+      "text": "manaessencebridge.page.advanced_essence_farm_mb"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.advanced_essence_farm_p2"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.advanced_essence_farm_p3"
+    }
+  ]
+}

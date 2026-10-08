@@ -42,10 +42,19 @@ public class ManaFlowerBlock extends BushBlock implements EntityBlock {
     private final Supplier<BlockEntityType<?>> type;
     private final BiFunction<BlockPos, BlockState, BlockEntity> factory;
     private final String[] tooltip;
+    private static final net.minecraft.resources.ResourceLocation RED_STRING_RELAY =
+            new net.minecraft.resources.ResourceLocation("botania", "red_string_relay");
 
     public ManaFlowerBlock(Supplier<BlockEntityType<?>> type, BiFunction<BlockPos, BlockState, BlockEntity> factory,
                            String... tooltip) {
-        super(BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS));
+        this(BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS)
+                .offsetType(BlockBehaviour.OffsetType.XZ), type, factory, tooltip);
+    }
+
+    /** Для парящего варианта - со своими свойствами блока. */
+    protected ManaFlowerBlock(BlockBehaviour.Properties properties, Supplier<BlockEntityType<?>> type,
+                              BiFunction<BlockPos, BlockState, BlockEntity> factory, String... tooltip) {
+        super(properties);
         this.type = type;
         this.factory = factory;
         this.tooltip = tooltip;
@@ -53,7 +62,8 @@ public class ManaFlowerBlock extends BushBlock implements EntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        net.minecraft.world.phys.Vec3 offset = state.getOffset(level, pos);
+        return SHAPE.move(offset.x, offset.y, offset.z);
     }
 
     @Nullable
@@ -81,7 +91,9 @@ public class ManaFlowerBlock extends BushBlock implements EntityBlock {
         }
         if (placer instanceof net.minecraft.server.level.ServerPlayer) {
             // «Ферма на цветках»: у достижения по критерию на каждый цветок мода
-            String flower = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(this).getPath();
+            // парящий вариант засчитывается за тот же цветок
+            String flower = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(this).getPath()
+                    .replace("floating_", "");
             PoolThroughput.award((net.minecraft.server.level.ServerPlayer) placer, "auto_farm", flower);
             // «Садовник Botania»: по критерию на каждый из восьми цветков мода
             PoolThroughput.award((net.minecraft.server.level.ServerPlayer) placer, "gardener", flower);
@@ -92,6 +104,31 @@ public class ManaFlowerBlock extends BushBlock implements EntityBlock {
     public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> lines, TooltipFlag flag) {
         for (int i = 0; i < tooltip.length; i++) {
             lines.add(Component.translatable(tooltip[i]).withStyle(i == 0 ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.GRAY));
+        }
+    }
+
+    /** Как у цветков Botania: можно сажать и на Red String Relay. */
+    @Override
+    protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
+        return RED_STRING_RELAY.equals(net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(state.getBlock()))
+                || super.mayPlaceOn(state, level, pos);
+    }
+
+    /** Как у цветков Botania: функциональный цветок, выключенный редстоуном, искрит. */
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, net.minecraft.util.RandomSource random) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (!(be instanceof vazkii.botania.api.block_entity.FunctionalFlowerBlockEntity) || !random.nextBoolean()) {
+            return;
+        }
+        vazkii.botania.api.block_entity.FunctionalFlowerBlockEntity flower = (vazkii.botania.api.block_entity.FunctionalFlowerBlockEntity) be;
+        VoxelShape shape = state.getShape(level, pos);
+        if (flower.acceptsRedstone() && flower.redstoneSignal > 0 && !shape.isEmpty()) {
+            net.minecraft.world.phys.AABB box = shape.bounds();
+            level.addParticle(net.minecraft.core.particles.DustParticleOptions.REDSTONE,
+                    pos.getX() + box.minX + random.nextDouble() * (box.maxX - box.minX),
+                    pos.getY() + box.minY + random.nextDouble() * (box.maxY - box.minY),
+                    pos.getZ() + box.minZ + random.nextDouble() * (box.maxZ - box.minZ), 0, 0, 0);
         }
     }
 }

@@ -25,8 +25,25 @@ public final class FlowerRenderLayers {
             RenderTypeLookup.setRenderLayer(ModBlocks.BOLTBLOOM.get(), RenderType.getCutout());
             RenderTypeLookup.setRenderLayer(ModBlocks.MELODIA.get(), RenderType.getCutout());
             RenderTypeLookup.setRenderLayer(ModBlocks.BUMBLEBLOOM.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(ModBlocks.FLOATING_MYSTICARNATION.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(ModBlocks.FLOATING_REAPERBLOOM.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(ModBlocks.FLOATING_WARDENIA.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(ModBlocks.FLOATING_ESSENTIDE.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(ModBlocks.FLOATING_BROOKBELL.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(ModBlocks.FLOATING_BOLTBLOOM.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(ModBlocks.FLOATING_MELODIA.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(ModBlocks.FLOATING_BUMBLEBLOOM.get(), RenderType.getCutout());
             // Эссенция, парящая над конденсатором
             ClientRegistry.bindTileEntityRenderer(ModBlocks.ESSENCE_CONDENSER_BE.get(), CondenserRenderer::new);
+            // Покачивание парящих цветков и радиус под моноклем
+            ClientRegistry.bindTileEntityRenderer(ModBlocks.MYSTICARNATION_BE.get(), ManaFlowerRenderer::new);
+            ClientRegistry.bindTileEntityRenderer(ModBlocks.REAPERBLOOM_BE.get(), ManaFlowerRenderer::new);
+            ClientRegistry.bindTileEntityRenderer(ModBlocks.WARDENIA_BE.get(), ManaFlowerRenderer::new);
+            ClientRegistry.bindTileEntityRenderer(ModBlocks.ESSENTIDE_BE.get(), ManaFlowerRenderer::new);
+            ClientRegistry.bindTileEntityRenderer(ModBlocks.BROOKBELL_BE.get(), ManaFlowerRenderer::new);
+            ClientRegistry.bindTileEntityRenderer(ModBlocks.BOLTBLOOM_BE.get(), ManaFlowerRenderer::new);
+            ClientRegistry.bindTileEntityRenderer(ModBlocks.MELODIA_BE.get(), ManaFlowerRenderer::new);
+            ClientRegistry.bindTileEntityRenderer(ModBlocks.BUMBLEBLOOM_BE.get(), ManaFlowerRenderer::new);
         });
     }
 }

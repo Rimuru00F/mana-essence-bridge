@@ -39,10 +39,12 @@ public class MirrorPacket {
     public final int maxMana;
     /** Можно ли выкупать: приватный чужой пул продаёт только хозяину. */
     public final boolean mayBuy;
+    /** Со сколькими пулами связан (сеть пулов). */
+    public final int links;
     public final List<Offer> offers;
 
     public MirrorPacket(boolean open, int hand, String dim, BlockPos pos, int tier, int mana, int maxMana,
-                        boolean mayBuy, List<Offer> offers) {
+                        boolean mayBuy, int links, List<Offer> offers) {
         this.open = open;
         this.hand = hand;
         this.dim = dim;
@@ -51,6 +53,7 @@ public class MirrorPacket {
         this.mana = mana;
         this.maxMana = maxMana;
         this.mayBuy = mayBuy;
+        this.links = links;
         this.offers = offers;
     }
 
@@ -63,6 +66,7 @@ public class MirrorPacket {
         buf.writeVarInt(p.mana);
         buf.writeVarInt(p.maxMana);
         buf.writeBoolean(p.mayBuy);
+        buf.writeVarInt(p.links);
         buf.writeVarInt(p.offers.size());
         for (Offer o : p.offers) {
             buf.writeVarInt(o.tier);
@@ -80,12 +84,13 @@ public class MirrorPacket {
         int mana = buf.readVarInt();
         int maxMana = buf.readVarInt();
         boolean mayBuy = buf.readBoolean();
+        int links = buf.readVarInt();
         int size = Math.min(buf.readVarInt(), 16);
         List<Offer> offers = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             offers.add(new Offer(buf.readVarInt(), buf.readVarInt(), buf.readVarInt()));
         }
-        return new MirrorPacket(open, hand, dim, pos, tier, mana, maxMana, mayBuy, offers);
+        return new MirrorPacket(open, hand, dim, pos, tier, mana, maxMana, mayBuy, links, offers);
     }
 
     public static void handle(MirrorPacket packet, Supplier<NetworkEvent.Context> context) {

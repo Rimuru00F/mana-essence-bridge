@@ -97,7 +97,11 @@ public class CatalystInteractionHandler {
         if (heldItem.getItem() instanceof EssenceMirrorItem) {
             consume(event);
             if (!world.isRemote) {
-                if (!cap.isUpgraded()) {
+                BlockPos bound = EssenceMirrorItem.boundPos(heldItem, world);
+                if (player.isSneaking() && bound != null) {
+                    // сеть пулов: связать этот пул с пулом зеркала (или показать связи)
+                    PoolNetwork.toggle(world, player, bound, pos);
+                } else if (!cap.isUpgraded()) {
                     status(player, TextFormatting.YELLOW, "message.manaessencebridge.not_upgraded");
                 } else if (mayAct(player, cap)) {
                     EssenceMirrorItem.bind(heldItem, world, pos, player);
@@ -117,6 +121,16 @@ public class CatalystInteractionHandler {
             consume(event);
             if (!world.isRemote) {
                 sellEssence(world, pos, player, heldItem, te, pool, cap, heldTier);
+            }
+            return;
+        }
+
+        // Случай 2б: предмет из курсов датапака (PoolExchange) -> мана
+        PoolExchange.Price custom = PoolExchange.custom(heldItem);
+        if (custom != null) {
+            consume(event);
+            if (!world.isRemote) {
+                sellCustom(world, pos, player, heldItem, te, pool, cap, custom);
             }
             return;
         }
@@ -248,6 +262,37 @@ public class CatalystInteractionHandler {
         PoolEffects.burst(world, pos, tier, Math.min(8 + count * 2, 40), 0.3);
         status(player, TextFormatting.AQUA, "message.manaessencebridge.sold",
                 CatalystItem.format(mana), count, tier.getDisplayName());
+    }
+
+    /** Предмет из курсов датапака: как эссенция, только цена и тир - из записи. */
+    private void sellCustom(World world, BlockPos pos, PlayerEntity player, ItemStack heldItem,
+                            TileEntity te, IManaPool pool, InferiumCatalystCapability cap, PoolExchange.Price price) {
+        if (!price.fits(cap)) {
+            status(player, TextFormatting.RED, "message.manaessencebridge.tier_too_low",
+                    cap.getTier(), tierName(cap.getTier()), price.look().getDisplayName());
+            return;
+        }
+        int space = availableSpace(te);
+        if (space < price.mana) {
+            status(player, TextFormatting.YELLOW, "message.manaessencebridge.no_space", CatalystItem.format(price.mana));
+            return;
+        }
+        int wanted = player.isSneaking() ? heldItem.getCount() : 1;
+        int count = Math.min(wanted, space / price.mana);
+        if (count <= 0) {
+            return;
+        }
+        int mana = price.mana * count;
+        net.minecraft.util.text.ITextComponent name = heldItem.getDisplayName();
+        pool.receiveMana(mana);
+        syncPool(world, pos, te);
+        PoolThroughput.record(world, pos, cap, mana, player, true);
+        if (!player.isCreative()) {
+            heldItem.shrink(count);
+        }
+        world.playSound(null, pos, SoundEvents.BLOCK_BEACON_ACTIVATE, SoundCategory.BLOCKS, 0.6F, 1.6F);
+        PoolEffects.burst(world, pos, price.look(), Math.min(8 + count * 2, 40), 0.3);
+        status(player, TextFormatting.AQUA, "message.manaessencebridge.sold", CatalystItem.format(mana), count, name);
     }
 
     /** Выкуп эссенции за ману пула; true - выкупили. */

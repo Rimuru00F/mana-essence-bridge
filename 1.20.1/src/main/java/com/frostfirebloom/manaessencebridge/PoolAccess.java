@@ -8,7 +8,8 @@ import java.util.UUID;
 /**
  * Приватные пулы (опция privatePools): чужим прокачанным пулом распоряжается
  * только его хозяин - тот, кто поставил первый катализатор. Операторы
- * сервера не ограничены. Пул без хозяина (из старых версий) открыт всем.
+ * сервера не ограничены, друзья хозяина (/manabridge trust) - тоже. Пул без
+ * хозяина (из старых версий) открыт всем.
  */
 public final class PoolAccess {
 
@@ -20,7 +21,8 @@ public final class PoolAccess {
         if (!BridgeConfig.privatePools() || owner == null || player == null) {
             return true;
         }
-        return owner.equals(player.getUUID()) || player.hasPermissions(2);
+        return owner.equals(player.getUUID()) || player.hasPermissions(2)
+                || PoolTrust.trusts(player.getServer(), owner, player.getUUID());
     }
 
     /** Может ли конденсатор, поставленный condenserOwner, брать ману из пула poolOwner. */
@@ -28,6 +30,7 @@ public final class PoolAccess {
         if (!BridgeConfig.privatePools() || poolOwner == null) {
             return true;
         }
-        return poolOwner.equals(condenserOwner);
+        return poolOwner.equals(condenserOwner)
+                || PoolTrust.trusts(net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer(), poolOwner, condenserOwner);
     }
 }

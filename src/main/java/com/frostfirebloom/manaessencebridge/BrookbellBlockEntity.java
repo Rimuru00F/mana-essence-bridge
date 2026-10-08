@@ -34,6 +34,13 @@ public class BrookbellBlockEntity extends TileEntityGeneratingFlower implements 
         super(ModBlocks.BROOKBELL_BE.get());
     }
 
+    /** Парящий вариант: Botania после загрузки отмечает только свои парящие блоки. */
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        setFloating(FloatingManaFlowerBlock.isFloating(getBlockState()));
+    }
+
     @Override
     public void tickFlower() {
         super.tickFlower();

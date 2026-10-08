@@ -41,6 +41,13 @@ public class EssentideBlockEntity extends TileEntityGeneratingFlower implements 
         super(ModBlocks.ESSENTIDE_BE.get());
     }
 
+    /** Парящий вариант: Botania после загрузки отмечает только свои парящие блоки. */
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        setFloating(FloatingManaFlowerBlock.isFloating(getBlockState()));
+    }
+
     /** Тир культуры ресурсной эссенции MA; 0 - Эссентида такое не ест. */
     public static int tierOf(net.minecraft.item.Item item) {
         return MysticalCrops.resourceTier(item);

@@ -5,7 +5,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
-version = mod_version
+version = "${minecraft_version}-${mod_version}"
 group = mod_group_id
 
 base {
@@ -117,6 +117,14 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
+    // Curios API: Botania без него не запускается, так что в игре он есть всегда.
+    maven {
+        name = 'Curios'
+        url = 'https://maven.theillusivec4.top/'
+        content {
+            includeGroup 'top.theillusivec4.curios'
+        }
+    }
     maven {
         name = 'CurseMaven'
         url = 'https://cursemaven.com'
@@ -155,6 +163,8 @@ dependencies {
 
     // Jade 1.20.1-Forge-11.13.3 (projectId 324717, fileId 8479276) - опциональна.
     compileOnly fg.deobf('curse.maven:jade-324717:8479276')
+    // Curios API - для Пояса Стражении (слот пояса).
+    compileOnly fg.deobf('top.theillusivec4.curios:curios-forge:5.14.1+1.20.1:api')
 
     // Mystical Agriculture в зависимостях не нужна: эссенции ищутся
     // по строковому идентификатору через реестр предметов.

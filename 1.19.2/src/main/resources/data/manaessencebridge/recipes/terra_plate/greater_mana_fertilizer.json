@@ -1,0 +1,33 @@
+{
+  "type": "botania:terra_plate",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "mana": 260000,
+  "ingredients": [
+    {
+      "item": "manaessencebridge:mana_fertilizer"
+    },
+    {
+      "item": "manaessencebridge:mana_fertilizer"
+    },
+    {
+      "item": "manaessencebridge:mana_fertilizer"
+    },
+    {
+      "item": "manaessencebridge:mana_fertilizer"
+    },
+    {
+      "item": "botania:rune_spring"
+    },
+    {
+      "item": "botania:rune_earth"
+    }
+  ],
+  "result": {
+    "item": "manaessencebridge:greater_mana_fertilizer"
+  }
+}

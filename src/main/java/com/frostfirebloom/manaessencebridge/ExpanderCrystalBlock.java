@@ -35,7 +35,7 @@ import java.util.Set;
 public class ExpanderCrystalBlock extends Block {
 
     /** Сколько кристаллов обходим, разыскивая пулы рядом с группой. */
-    private static final int SEARCH_LIMIT = 64;
+    private static final int SEARCH_LIMIT = 128;
 
     public ExpanderCrystalBlock() {
         super(AbstractBlock.Properties.create(Material.ROCK, MaterialColor.LIGHT_BLUE)
@@ -69,7 +69,8 @@ public class ExpanderCrystalBlock extends Block {
         ArrayDeque<BlockPos> queue = new ArrayDeque<>();
         seen.add(pos);
         queue.add(pos);
-        while (!queue.isEmpty() && seen.size() < SEARCH_LIMIT) {
+        int crystals = 0;
+        while (!queue.isEmpty() && crystals < SEARCH_LIMIT) {
             BlockPos at = queue.poll();
             for (Direction dir : Direction.values()) {
                 BlockPos next = at.offset(dir);
@@ -78,6 +79,7 @@ public class ExpanderCrystalBlock extends Block {
                 }
                 if (world.getBlockState(next).getBlock() == ModBlocks.EXPANDER_CRYSTAL.get()) {
                     queue.add(next);
+                    crystals++;
                 } else if (world.getTileEntity(next) instanceof IManaPool) {
                     pools.add(next);
                 }

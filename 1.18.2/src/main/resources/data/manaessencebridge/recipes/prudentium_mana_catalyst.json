@@ -1,0 +1,35 @@
+{
+  "type": "botania:petal_apothecary",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mysticalagriculture"
+    }
+  ],
+  "output": {
+    "item": "manaessencebridge:prudentium_mana_catalyst"
+  },
+  "ingredients": [
+    {
+      "item": "manaessencebridge:inferium_mana_catalyst"
+    },
+    {
+      "item": "mysticalagriculture:prudentium_essence"
+    },
+    {
+      "item": "mysticalagriculture:prudentium_essence"
+    },
+    {
+      "item": "mysticalagriculture:prudentium_essence"
+    },
+    {
+      "item": "mysticalagriculture:prudentium_essence"
+    },
+    {
+      "item": "botania:mana_diamond"
+    },
+    {
+      "item": "botania:mana_diamond"
+    }
+  ]
+}

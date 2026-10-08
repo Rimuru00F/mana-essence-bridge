@@ -1,0 +1,21 @@
+{
+  "name": "manaessencebridge.entry.wardenia_belt",
+  "category": "manaessencebridge:bridge",
+  "icon": "manaessencebridge:wardenia_belt",
+  "sortnum": 13,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.wardenia_belt_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.wardenia_belt_p2"
+    },
+    {
+      "type": "botania:runic_altar",
+      "text": "manaessencebridge.page.wardenia_belt1",
+      "recipe": "manaessencebridge:wardenia_belt"
+    }
+  ]
+}

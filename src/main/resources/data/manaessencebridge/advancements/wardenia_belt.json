@@ -1,0 +1,30 @@
+{
+  "parent": "manaessencebridge:root",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:wardenia_belt"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.wardenia_belt.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.wardenia_belt.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_belt": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "manaessencebridge:wardenia_belt"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "manaessencebridge.entry.mana_fertilizer",
+  "category": "manaessencebridge:bridge",
+  "icon": "manaessencebridge:mana_fertilizer",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.mana_fertilizer_p1"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.mana_fertilizer_p2"
+    },
+    {
+      "type": "botania:mana_infusion",
+      "flag": "mod:mysticalagriculture",
+      "text": "manaessencebridge.page.mana_fertilizer1",
+      "recipes": "manaessencebridge:mana_infusion/mana_fertilizer"
+    },
+    {
+      "type": "text",
+      "text": "manaessencebridge.page.mana_fertilizer_p3"
+    },
+    {
+      "type": "botania:terrasteel",
+      "flag": "mod:mysticalagriculture",
+      "text": "manaessencebridge.page.mana_fertilizer2",
+      "recipe": "manaessencebridge:terra_plate/greater_mana_fertilizer"
+    }
+  ]
+}

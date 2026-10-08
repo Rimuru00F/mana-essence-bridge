@@ -1,0 +1,23 @@
+{
+  "type": "botania:petal_apothecary",
+  "output": {
+    "item": "manaessencebridge:brookbell"
+  },
+  "ingredients": [
+    {
+      "tag": "botania:petals/light_blue"
+    },
+    {
+      "tag": "botania:petals/light_blue"
+    },
+    {
+      "tag": "botania:petals/blue"
+    },
+    {
+      "tag": "botania:petals/cyan"
+    },
+    {
+      "item": "botania:rune_water"
+    }
+  ]
+}

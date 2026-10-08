@@ -34,6 +34,13 @@ public class MysticarnationBlockEntity extends TileEntityFunctionalFlower {
         super(ModBlocks.MYSTICARNATION_BE.get());
     }
 
+    /** Парящий вариант: Botania после загрузки отмечает только свои парящие блоки. */
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        setFloating(FloatingManaFlowerBlock.isFloating(getBlockState()));
+    }
+
     /** Цена одной выросшей стадии, привязана к курсу эссенции. */
     public static int costPerStage() {
         return (int) Math.min(Integer.MAX_VALUE, (long) BridgeConfig.manaPerInferium() * 5 / 8);

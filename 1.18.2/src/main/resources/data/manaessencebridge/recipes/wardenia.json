@@ -1,0 +1,26 @@
+{
+  "type": "botania:petal_apothecary",
+  "output": {
+    "item": "manaessencebridge:wardenia"
+  },
+  "ingredients": [
+    {
+      "tag": "botania:petals/green"
+    },
+    {
+      "tag": "botania:petals/green"
+    },
+    {
+      "tag": "botania:petals/brown"
+    },
+    {
+      "tag": "botania:petals/white"
+    },
+    {
+      "item": "botania:rune_earth"
+    },
+    {
+      "item": "botania:redstone_root"
+    }
+  ]
+}

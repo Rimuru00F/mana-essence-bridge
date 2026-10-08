@@ -31,6 +31,8 @@ public class MysticarnationBlockEntity extends FunctionalFlowerBlockEntity {
 
     public MysticarnationBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.MYSTICARNATION_BE.get(), pos, state);
+        // парящий вариант: Botania после загрузки отмечает только свои парящие блоки
+        setFloating(FloatingManaFlowerBlock.isFloating(state));
     }
 
     /** Цена одной выросшей стадии, привязана к курсу эссенции. */

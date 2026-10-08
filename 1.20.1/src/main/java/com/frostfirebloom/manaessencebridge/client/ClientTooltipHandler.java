@@ -1,5 +1,7 @@
 package com.frostfirebloom.manaessencebridge.client;
 
+import com.frostfirebloom.manaessencebridge.PoolExchange;
+
 import com.frostfirebloom.manaessencebridge.CatalystItem;
 import com.frostfirebloom.manaessencebridge.EssenceTier;
 import net.minecraft.ChatFormatting;
@@ -38,7 +40,18 @@ public class ClientTooltipHandler {
         }
 
         EssenceTier tier = EssenceTier.fromItem(event.getItemStack().getItem());
-        if (tier == null || !tier.isEnabled()) {
+        if (tier == null) {
+            // предмет из курсов датапака
+            PoolExchange.Price price = PoolExchange.custom(event.getItemStack());
+            if (price != null) {
+                event.getToolTip().add(line("tooltip.manaessencebridge.essence_sell",
+                        ChatFormatting.AQUA, CatalystItem.format(price.mana)));
+                event.getToolTip().add(line("tooltip.manaessencebridge.essence_pool",
+                        ChatFormatting.DARK_GRAY, price.tier, price.look().getDisplayName()));
+            }
+            return;
+        }
+        if (!tier.isEnabled()) {
             return;
         }
 

@@ -44,6 +44,8 @@ public final class ModNetwork {
                 MirrorPacket::encode, MirrorPacket::decode, MirrorPacket::handle);
         CHANNEL.registerMessage(4, MirrorActionPacket.class,
                 MirrorActionPacket::encode, MirrorActionPacket::decode, MirrorActionPacket::handle);
+        CHANNEL.registerMessage(5, ExchangePacket.class,
+                ExchangePacket::encode, ExchangePacket::decode, ExchangePacket::handle);
     }
 
     /** Разослать состояние пула всем, кто видит этот чанк. */

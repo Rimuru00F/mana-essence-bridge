@@ -1,0 +1,23 @@
+{
+  "parent": "manaessencebridge:tier_1_inferium",
+  "display": {
+    "icon": {
+      "item": "manaessencebridge:mana_fertilizer"
+    },
+    "title": {
+      "translate": "advancements.manaessencebridge.mana_fertilizer.title"
+    },
+    "description": {
+      "translate": "advancements.manaessencebridge.mana_fertilizer.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "reached": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

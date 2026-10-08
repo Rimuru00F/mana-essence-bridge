@@ -20,7 +20,8 @@ public final class PoolAccess {
         if (!BridgeConfig.privatePools() || owner == null || player == null) {
             return true;
         }
-        return owner.equals(player.getUniqueID()) || player.hasPermissionLevel(2);
+        return owner.equals(player.getUniqueID()) || player.hasPermissionLevel(2)
+                || PoolTrust.trusts(player.getServer(), owner, player.getUniqueID());
     }
 
     /** Может ли конденсатор, поставленный condenserOwner, брать ману из пула poolOwner. */
@@ -28,6 +29,7 @@ public final class PoolAccess {
         if (!BridgeConfig.privatePools() || poolOwner == null) {
             return true;
         }
-        return poolOwner.equals(condenserOwner);
+        return poolOwner.equals(condenserOwner)
+                || PoolTrust.trusts(net.minecraftforge.fml.server.ServerLifecycleHooks.getCurrentServer(), poolOwner, condenserOwner);
     }
 }
